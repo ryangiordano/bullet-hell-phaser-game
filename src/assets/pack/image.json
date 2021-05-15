@@ -1,0 +1,9 @@
+{
+  "preload": {
+    "files": [{
+      "type": "image",
+      "key": "main",
+      "url": "./src/main/assets/tilesets/main.png"
+    }]
+  }
+}

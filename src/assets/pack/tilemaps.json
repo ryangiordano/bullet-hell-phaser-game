@@ -1,0 +1,9 @@
+{
+  "preload": {
+    "files": [{
+      "type": "tilemapTiledJSON",
+      "key": "main",
+      "url": "./src/assets/maps/tilesets/main.json"
+    }]
+  }
+}

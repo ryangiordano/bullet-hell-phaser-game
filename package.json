@@ -1,0 +1,26 @@
+{
+  "name": "baby-2022",
+  "version": "1.0.0",
+  "description": "Baby 2022",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "yarn install && yarn run dev",
+    "build-boilerplate": "yarn install && yarn run build",
+    "dev": "webpack --mode development && webpack-dev-server --mode development"
+  },
+  "author": "thedaruma",
+  "license": "ISC",
+  "dependencies": {
+    "phaser": "^3.54.0"
+  },
+  "devDependencies": {
+    "expose-loader": "0.7.5",
+    "module-alias": "^2.2.2",
+    "ts-loader": "6.0.4",
+    "typescript": "^4.2.4",
+    "webpack": "4.35.2",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "3.7.2"
+  }
+}
