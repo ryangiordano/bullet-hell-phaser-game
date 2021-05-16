@@ -4,11 +4,14 @@ import Particle from "../components/map-objects/background/Particle";
 import Hit from "../components/map-objects/misc/Hit";
 import State from "../game-state/State";
 import Boundary from "../components/map-objects/background/Boundary";
+import Antibody from "../components/map-objects/enemies/Antibody";
+import Background from "../components/map-objects/background/Background";
 
 export class MainScene extends Phaser.Scene {
   public map: Phaser.Tilemaps.Tilemap;
   private hero: Hero;
   private enemies: Phaser.GameObjects.Group;
+  private antibodies: Phaser.GameObjects.Group;
   private particleLayer: Phaser.GameObjects.Container;
   constructor() {
     super({ key: "MainScene" });
@@ -19,13 +22,12 @@ export class MainScene extends Phaser.Scene {
     this.hero = this.physics.add.existing(new Hero(this, 100, 100));
     this.hero.init();
     this.enemies = new Phaser.GameObjects.Group(this);
+    this.antibodies = new Phaser.GameObjects.Group(this);
     this.particleLayer = new Phaser.GameObjects.Container(this);
     this.animateParticles();
-    setInterval(() => {
-      this.enemies.add(
-        new Enemy(this, Math.random() * 1000, this.game.canvas.height + 50)
-      );
-    }, 1000);
+    this.addCompetition();
+
+    this.addAntibodies();
 
     this.setWorldBounds();
 
@@ -46,6 +48,32 @@ export class MainScene extends Phaser.Scene {
         }
       }
     );
+
+    // Set collisions
+    this.physics.add.overlap(
+      this.enemies,
+      this.antibodies,
+      (enemy: Enemy, antibody: Antibody) => {
+        if (!enemy.dying) {
+          enemy.kill();
+          this.add.existing(new Hit(this, enemy.x, enemy.y));
+        }
+      }
+    );
+  }
+
+  private addCompetition() {
+    setInterval(() => {
+      this.enemies.add(
+        new Enemy(this, Math.random() * 1000, this.game.canvas.height + 50)
+      );
+    }, 1000);
+  }
+
+  private addAntibodies() {
+    setInterval(() => {
+      this.antibodies.add(new Antibody(this, Math.random() * 1000, -200));
+    }, 3000);
   }
 
   private setWorldBounds() {
@@ -76,12 +104,7 @@ export class MainScene extends Phaser.Scene {
     setInterval(() => {
       const p = new Particle(this, Math.random() * 1000, -50);
       p.init();
-    }, 100);
-  }
-
-  private setInputs() {
-    // this.input.on("pointerdown", (pointer, e) => {});
-    // this.input.on("pointermove", () => {});
+    }, 50);
   }
 
   update() {}

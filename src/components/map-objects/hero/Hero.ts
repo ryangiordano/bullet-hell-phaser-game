@@ -21,7 +21,9 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
       }),
       frameRate: 18,
     });
-    this.anims.play("hero-idle");
+    this.anims.play({
+      key: "hero-idle",
+    });
     this.setTint(styles.colors.lightGreen);
   }
 
@@ -80,6 +82,10 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
     if (this.charging) {
       return;
     }
+    this.anims.play({
+      key: "hero-idle",
+      frameRate: 60,
+    });
     const b: any = this.body;
     this.charging = true;
     b?.setMaxVelocity(TACKLE_MAX_VELOCITY, TACKLE_MAX_VELOCITY);
@@ -87,6 +93,9 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
 
     setTimeout(() => {
       this.charging = false;
+      this.anims.play({
+        key: "hero-idle",
+      });
     }, 400);
 
     setTimeout(() => {
@@ -98,18 +107,20 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
     this.cursors = this.scene.input.keyboard.createCursorKeys();
 
     this.cursors.space.addListener("down", () => {
+      const tackleVelocity = { x: 0, y: 0 };
       if (this.cursors.right.isDown) {
-        this.tackle(TACKLE_VELOCITY, 0);
+        tackleVelocity.x = TACKLE_VELOCITY;
       }
       if (this.cursors.left.isDown) {
-        this.tackle(-TACKLE_VELOCITY, 0);
+        tackleVelocity.x = -TACKLE_VELOCITY;
       }
       if (this.cursors.down.isDown) {
-        this.tackle(0, TACKLE_VELOCITY);
+        tackleVelocity.y = TACKLE_VELOCITY;
       }
       if (this.cursors.up.isDown) {
-        this.tackle(0, -TACKLE_VELOCITY);
+        tackleVelocity.y = -TACKLE_VELOCITY;
       }
+      this.tackle(tackleVelocity.x, tackleVelocity.y);
     });
 
     this.cursors.down.addListener("down", () => {

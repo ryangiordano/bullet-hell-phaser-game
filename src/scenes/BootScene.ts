@@ -35,10 +35,14 @@ export class BootScene extends Phaser.Scene {
       "./src/assets/maps/tilesets/main.json",
       "preload_tilemaps"
     );
-    this.load.spritesheet("heart-small", "./src/assets/sprites/heart-small.png", {
-      frameWidth: 64,
-      frameHeight: 64,
-    });
+    this.load.spritesheet(
+      "heart-small",
+      "./src/assets/sprites/heart-small.png",
+      {
+        frameWidth: 64,
+        frameHeight: 64,
+      }
+    );
     // Move this into the hero somehow
     this.load.spritesheet("hero", "./src/assets/sprites/hero.png", {
       frameWidth: 128,
@@ -57,7 +61,11 @@ export class BootScene extends Phaser.Scene {
       frameWidth: 128,
       frameHeight: 128,
     });
-
+    this.load.spritesheet("antibody", "./src/assets/sprites/antibody.png", {
+      frameWidth: 256,
+      frameHeight: 256,
+    });
+    this.load.image("background", "./src/assets/images/background.png");
     this.createLoadingGraphics();
     this.load.on("complete", () => {
       this.loaded = true;

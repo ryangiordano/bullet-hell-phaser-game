@@ -9,6 +9,6 @@ export default class Particle extends Phaser.Physics.Arcade.Sprite {
     this.setAlpha(Math.min(Math.random(), 0.3));
   }
   init() {
-    this.setVelocity(0, Math.min(Math.random() * 500, 250));
+    this.setVelocity(0, Math.min(Math.random() * 2000, 1000));
   }
 }

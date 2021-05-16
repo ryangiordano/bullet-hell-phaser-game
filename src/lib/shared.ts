@@ -1,5 +1,6 @@
 export const styles = {
   colors: {
+    white: 0xffffff,
     black: 0x1f1f1f,
     darkGreen: 0x4c513b,
     green: 0x89946a,
