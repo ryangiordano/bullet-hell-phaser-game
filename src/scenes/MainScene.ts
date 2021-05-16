@@ -3,6 +3,7 @@ import Hero from "../components/map-objects/hero/Hero";
 import Particle from "../components/map-objects/background/Particle";
 import Hit from "../components/map-objects/misc/Hit";
 import State from "../game-state/State";
+import Boundary from "../components/map-objects/background/Boundary";
 
 export class MainScene extends Phaser.Scene {
   public map: Phaser.Tilemaps.Tilemap;
@@ -21,13 +22,12 @@ export class MainScene extends Phaser.Scene {
     this.particleLayer = new Phaser.GameObjects.Container(this);
     this.animateParticles();
     setInterval(() => {
-      const e = new Enemy(
-        this,
-        Math.random() * 1000,
-        this.game.canvas.height + 50
+      this.enemies.add(
+        new Enemy(this, Math.random() * 1000, this.game.canvas.height + 50)
       );
-      this.enemies.add(e);
     }, 1000);
+
+    this.setWorldBounds();
 
     // Set collisions
     this.physics.add.overlap(
@@ -46,6 +46,30 @@ export class MainScene extends Phaser.Scene {
         }
       }
     );
+  }
+
+  private setWorldBounds() {
+    const height = this.game.canvas.height;
+    const width = this.game.canvas.width;
+
+    const left = new Boundary(this, 0, height / 2, 0, height);
+    const right = new Boundary(this, width, height / 2, 0, height);
+    const top = new Boundary(this, width / 2, 0, width, 0);
+    const bottom = new Boundary(this, width / 2, height, width, 0);
+
+    const c = new Phaser.Physics.Arcade.StaticGroup(this.physics.world, this, [
+      left,
+      right,
+      top,
+      bottom,
+    ]);
+
+    left.init();
+    right.init();
+    top.init();
+    bottom.init();
+
+    this.physics.add.collider([c], this.hero);
   }
 
   private animateParticles() {

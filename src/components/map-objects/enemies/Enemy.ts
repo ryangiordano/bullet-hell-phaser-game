@@ -1,6 +1,6 @@
 import { styles, getKnockbackVector } from "../../../lib/shared";
 
-export default class Hero extends Phaser.Physics.Arcade.Sprite {
+export default class Enemy extends Phaser.Physics.Arcade.Sprite {
   public dying: boolean = false;
 
   constructor(scene, x, y) {
