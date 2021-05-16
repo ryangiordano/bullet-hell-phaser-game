@@ -2,6 +2,7 @@ import Enemy from "../components/map-objects/enemies/Enemy";
 import Hero from "../components/map-objects/hero/Hero";
 import Particle from "../components/map-objects/background/Particle";
 import Hit from "../components/map-objects/misc/Hit";
+import State from "../game-state/State";
 
 export class MainScene extends Phaser.Scene {
   public map: Phaser.Tilemaps.Tilemap;
@@ -40,6 +41,8 @@ export class MainScene extends Phaser.Scene {
         } else if (!hero.invuln && !hero.charging) {
           this.add.existing(new Hit(this, enemy.x, enemy.y));
           hero.getHurt();
+          const state = State.getInstance();
+          state.decrementHealth();
         }
       }
     );

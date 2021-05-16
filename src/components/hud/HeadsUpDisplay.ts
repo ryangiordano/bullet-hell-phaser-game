@@ -10,7 +10,8 @@ export class HeadsUpDisplay extends Phaser.GameObjects.Container {
     state.emitter.on("update-state", ({ heroHealth }: CurrentState) => {
       this.setHeroHealth(heroHealth);
     });
-    this.heroHealth = 3;
+
+    this.heroHealth = state.getHeroHealth();
     this.renderHearts();
   }
 
@@ -22,5 +23,7 @@ export class HeadsUpDisplay extends Phaser.GameObjects.Container {
 
   setHeroHealth(value: number) {
     this.heroHealth = value;
+    this.removeAll(true);
+    this.renderHearts();
   }
 }

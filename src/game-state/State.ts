@@ -7,7 +7,13 @@ export type CurrentState = {
 export default class State {
   public emitter = new Phaser.Events.EventEmitter();
   private static instance: State;
-  private heroHealth: 3;
+  private heroHealth = 3;
+  constructor() {
+    this.emitter.on("game-over", () => {
+      //TODO: Scene transition
+      console.log("Game over");
+    });
+  }
   static getInstance() {
     if (!State.instance) {
       State.instance = new State();
@@ -16,10 +22,11 @@ export default class State {
   }
 
   decrementHealth() {
-    if (this.heroHealth - 1 === 0) {
+    this.set("heroHealth", (this.heroHealth -= 1));
+
+    if (this.heroHealth === 0) {
       return this.emitter.emit("game-over");
     }
-    this.set("heroHealth", (this.heroHealth -= 1));
   }
 
   getHeroHealth() {
