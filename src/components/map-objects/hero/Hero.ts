@@ -41,11 +41,19 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
     );
   }
 
+  private flashing() {
+    return setInterval(() => {
+      this.setAlpha(this.alpha === 1 ? 0.5 : 1);
+    }, 15);
+  }
+
   private setInvulnerable() {
     this.invuln = true;
-    this.setAlpha(0.5);
+    const flashingInterval = this.flashing();
+
     setTimeout(() => {
       this.invuln = false;
+      clearInterval(flashingInterval);
       this.setAlpha(1);
     }, 2000);
   }
