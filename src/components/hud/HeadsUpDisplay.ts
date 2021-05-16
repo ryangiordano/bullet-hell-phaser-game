@@ -1,30 +1,26 @@
 import State, { CurrentState } from "../../game-state/State";
+import Heart from "./Heart";
 
 export class HeadsUpDisplay extends Phaser.GameObjects.Container {
-  private lumberText: Phaser.GameObjects.Text;
-  private goldText: Phaser.GameObjects.Text;
+  private heroHealth: number;
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
-
-    // this.goldText = new Phaser.GameObjects.Text(scene, 150, 0, "", {});
-    // this.lumberText = new Phaser.GameObjects.Text(this.scene, 0, 0, "", {});
-    // this.add([this.goldText, this.lumberText]);
-    // this.setLumber(0);
-    // this.setGold(0);
     const state = State.getInstance();
 
-    state.emitter.on("update-state", ({ gold, lumber }: CurrentState) => {
-      this.setLumber(lumber);
-      this.setGold(gold);
-      
+    state.emitter.on("update-state", ({ heroHealth }: CurrentState) => {
+      this.setHeroHealth(heroHealth);
     });
+    this.heroHealth = 3;
+    this.renderHearts();
   }
 
-  setLumber(value: string | number) {
-    this.lumberText.setText(`Lumber: ${value}`);
+  renderHearts() {
+    for (let i = 0; i < this.heroHealth; i++) {
+      this.add(new Heart(this.scene, -i * 70, 0));
+    }
   }
 
-  setGold(value: string | number) {
-    this.goldText.setText(`Gold: ${value}`);
+  setHeroHealth(value: number) {
+    this.heroHealth = value;
   }
 }

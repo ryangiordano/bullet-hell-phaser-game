@@ -11,12 +11,11 @@ export default class Hit extends Phaser.GameObjects.Sprite {
       repeat: 0,
       key: "hit",
       frames: this.anims.generateFrameNumbers("hit", {
-        frames: [0, 1, 2, 3],
+        frames: [2, 3],
       }),
       frameRate: 9,
     });
     this.on("animationcomplete", () => {
-      console.log("???");
       this.destroy();
     });
     this.anims.play({

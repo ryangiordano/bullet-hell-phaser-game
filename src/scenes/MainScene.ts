@@ -11,26 +11,7 @@ export class MainScene extends Phaser.Scene {
   constructor() {
     super({ key: "MainScene" });
   }
-  preload() {
-    // Move this into the hero somehow
-    this.load.spritesheet("hero", "./src/assets/sprites/hero.png", {
-      frameWidth: 128,
-      frameHeight: 128,
-    });
-    this.load.spritesheet("enemy", "./src/assets/sprites/enemy.png", {
-      frameWidth: 128,
-      frameHeight: 128,
-    });
-    this.load.spritesheet("particles", "./src/assets/sprites/particles.png", {
-      frameWidth: 128,
-      frameHeight: 128,
-    });
-
-    this.load.spritesheet("hit", "./src/assets/sprites/hit.png", {
-      frameWidth: 128,
-      frameHeight: 128,
-    });
-  }
+  preload() {}
 
   public create() {
     this.hero = this.physics.add.existing(new Hero(this, 100, 100));

@@ -4,10 +4,12 @@ export class HUDScene extends Phaser.Scene {
   constructor() {
     super({ key: "HUDScene" });
   }
-  preload() {}
+  preload() {
+
+  }
 
   init() {
-    const hud = new HeadsUpDisplay(this, 50, this.game.canvas.height-50);
+    const hud = new HeadsUpDisplay(this, this.game.canvas.width - 50, 50);
     this.add.existing(hud);
   }
 
