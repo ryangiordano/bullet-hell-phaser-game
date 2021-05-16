@@ -1,6 +1,7 @@
 import Enemy from "../components/map-objects/enemies/Enemy";
 import Hero from "../components/map-objects/hero/Hero";
 import Particle from "../components/map-objects/background/Particle";
+import Hit from "../components/map-objects/misc/Hit";
 
 export class MainScene extends Phaser.Scene {
   public map: Phaser.Tilemaps.Tilemap;
@@ -21,6 +22,11 @@ export class MainScene extends Phaser.Scene {
       frameHeight: 128,
     });
     this.load.spritesheet("particles", "./src/assets/sprites/particles.png", {
+      frameWidth: 128,
+      frameHeight: 128,
+    });
+
+    this.load.spritesheet("hit", "./src/assets/sprites/hit.png", {
       frameWidth: 128,
       frameHeight: 128,
     });
@@ -45,8 +51,15 @@ export class MainScene extends Phaser.Scene {
     this.physics.add.overlap(
       this.enemies,
       this.hero,
-      (object1: Enemy, object2: Hero) => {
-        object2.getHurt();
+      (enemy: Enemy, hero: Hero) => {
+        if (hero.charging && !enemy.dying) {
+          enemy.kill();
+          hero.knockBack(300);
+          this.add.existing(new Hit(this, hero.x, hero.y));
+        } else if (!hero.invuln && !hero.charging) {
+          this.add.existing(new Hit(this, enemy.x, enemy.y));
+          hero.getHurt();
+        }
       }
     );
   }
@@ -54,7 +67,6 @@ export class MainScene extends Phaser.Scene {
   private animateParticles() {
     setInterval(() => {
       const p = new Particle(this, Math.random() * 1000, -50);
-      // this.particleLayer.add(p);
       p.init();
     }, 100);
   }

@@ -1,4 +1,4 @@
-import { styles } from "../../../lib/shared";
+import { styles, getKnockbackVector } from "../../../lib/shared";
 
 export default class Hero extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
@@ -18,8 +18,22 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
     this.init();
   }
 
+  public dying: boolean = false;
+
   init() {
     this.setVelocityY(-100);
     this.body.setSize(50, 100);
+  }
+
+  kill() {
+    if (this.dying) {
+      return;
+    }
+    this.dying = true;
+    const { x, y } = getKnockbackVector(this.body, 400);
+    this.setVelocity(x, y);
+    setTimeout(() => {
+      this.destroy();
+    }, 200);
   }
 }
