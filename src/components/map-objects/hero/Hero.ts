@@ -2,7 +2,7 @@ import { styles } from "../../../lib/shared";
 
 export default class Hero extends Phaser.Physics.Arcade.Sprite {
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
-
+  private invuln: boolean = false;
   constructor(scene, x, y) {
     super(scene, x, y, "hero", 0);
     this.scene.add.existing(this);
@@ -22,8 +22,8 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
   init() {
     const b: any = this.body;
     b?.setDrag(500, 500);
-    console.log(this.body);
     b?.setMaxVelocity(400, 400);
+    this.body.setSize(50, 50);
   }
 
   private stopMovement() {
@@ -39,6 +39,35 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
       !this.cursors.left.isDown &&
       !this.cursors.right.isDown
     );
+  }
+
+  private setInvulnerable() {
+    this.invuln = true;
+    this.setAlpha(0.5);
+    setTimeout(() => {
+      this.invuln = false;
+      this.setAlpha(1);
+    }, 2000);
+  }
+
+  public getHurt() {
+    if (!this.invuln) {
+      this.setInvulnerable();
+
+      if (this.body.touching.down) {
+        this.setVelocity(0, -1000);
+      }
+      if (this.body.touching.up) {
+        this.setVelocity(0, 1000);
+      }
+      if (this.body.touching.right) {
+        console.log("Hitting right");
+        this.setVelocity(-1000, 0);
+      }
+      if (this.body.touching.left) {
+        this.setVelocity(1000, 0);
+      }
+    }
   }
 
   private setInputs() {

@@ -20,5 +20,6 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
 
   init() {
     this.setVelocityY(-100);
+    this.body.setSize(50, 100);
   }
 }
