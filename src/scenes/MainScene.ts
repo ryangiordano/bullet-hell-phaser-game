@@ -12,25 +12,27 @@ export class MainScene extends Phaser.Scene {
   private hero: Hero;
   private enemies: Phaser.GameObjects.Group;
   private antibodies: Phaser.GameObjects.Group;
-  private particleLayer: Phaser.GameObjects.Container;
+  private particleLayer: Phaser.GameObjects.Group;
   constructor() {
     super({ key: "MainScene" });
   }
   preload() {}
 
   public create() {
-    this.hero = this.physics.add.existing(new Hero(this, 100, 100));
+    this.hero = this.physics.add.existing(
+      new Hero(this, this.game.canvas.width / 2, this.game.canvas.height - 100)
+    );
     this.hero.init();
     this.enemies = new Phaser.GameObjects.Group(this);
     this.antibodies = new Phaser.GameObjects.Group(this);
-    this.particleLayer = new Phaser.GameObjects.Container(this);
+    this.particleLayer = new Phaser.GameObjects.Group(this);
     this.animateParticles();
     this.addCompetition();
 
     this.addAntibodies();
 
     this.setWorldBounds();
-
+    this.setWorldGarbageCollector();
     // Set collisions
     this.physics.add.overlap(
       this.enemies,
@@ -49,30 +51,40 @@ export class MainScene extends Phaser.Scene {
       }
     );
 
-    // Set collisions
-    this.physics.add.overlap(
-      this.enemies,
-      this.antibodies,
-      (enemy: Enemy, antibody: Antibody) => {
-        if (!enemy.dying) {
-          enemy.kill();
-          this.add.existing(new Hit(this, enemy.x, enemy.y));
-        }
+    this.physics.add.overlap(this.hero, this.antibodies, (hero: Hero) => {
+      if (!hero.invuln) {
+        this.add.existing(new Hit(this, hero.x, hero.y));
+        hero.getHurt();
+        const state = State.getInstance();
+        state.decrementHealth();
       }
-    );
+    });
+
+    this.physics.add.overlap(this.enemies, this.antibodies, (enemy: Enemy) => {
+      if (!enemy.dying) {
+        enemy.kill();
+        this.add.existing(new Hit(this, enemy.x, enemy.y));
+      }
+    });
   }
 
   private addCompetition() {
     setInterval(() => {
       this.enemies.add(
-        new Enemy(this, Math.random() * 1000, this.game.canvas.height + 50)
+        new Enemy(
+          this,
+          Math.random() * this.game.canvas.width,
+          this.game.canvas.height + 50
+        )
       );
     }, 1000);
   }
 
   private addAntibodies() {
     setInterval(() => {
-      this.antibodies.add(new Antibody(this, Math.random() * 1000, -200));
+      this.antibodies.add(
+        new Antibody(this, Math.random() * this.game.canvas.width, -200)
+      );
     }, 3000);
   }
 
@@ -100,10 +112,37 @@ export class MainScene extends Phaser.Scene {
     this.physics.add.collider([c], this.hero);
   }
 
+  private setWorldGarbageCollector() {
+    const height = this.game.canvas.height;
+    const width = this.game.canvas.width;
+
+    const top = new Boundary(this, width / 2, -600, width * 2, 0);
+    const bottom = new Boundary(this, width / 2, height + 600, width * 2, 0);
+
+    const c = new Phaser.Physics.Arcade.StaticGroup(this.physics.world, this, [
+      top,
+      bottom,
+    ]);
+
+    top.init();
+    bottom.init();
+    this.physics.add.overlap(c, this.antibodies, (entity) => {
+      entity.destroy();
+    });
+    this.physics.add.overlap(c, this.enemies, (entity) => {
+      entity.destroy();
+    });
+
+    this.physics.add.overlap(c, this.particleLayer, (entity) => {
+      entity.destroy();
+    });
+  }
+
   private animateParticles() {
     setInterval(() => {
-      const p = new Particle(this, Math.random() * 1000, -50);
+      const p = new Particle(this, Math.random() * this.game.canvas.width, -50);
       p.init();
+      this.particleLayer.add(p);
     }, 50);
   }
 

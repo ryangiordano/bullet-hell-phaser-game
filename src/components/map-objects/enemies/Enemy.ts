@@ -17,7 +17,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
       frameRate: velocity / 10,
     });
     this.anims.play("enemy-idle");
-    this.setTint(styles.colors.green);
+    this.setTint(styles.colors.lightGreen);
     this.setVelocityY(-velocity);
     this.body.setSize(50, 100);
   }
