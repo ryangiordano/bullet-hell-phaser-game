@@ -21,6 +21,8 @@ export default class Antibody extends Phaser.Physics.Arcade.Sprite {
     this.anims.play("antibody-idle");
     this.setTint(styles.colors.lightGreen);
     this.setVelocityY(velocity);
+    this.body.setCircle(128);
+
     setInterval(() => {
       this.angle += 1;
     }, 10);
