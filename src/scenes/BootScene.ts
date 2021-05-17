@@ -65,6 +65,11 @@ export class BootScene extends Phaser.Scene {
       frameWidth: 256,
       frameHeight: 256,
     });
+
+    this.load.spritesheet("health", "./src/assets/sprites/health.png", {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
     this.load.image("background", "./src/assets/images/background.png");
     this.createLoadingGraphics();
     this.load.on("complete", () => {
