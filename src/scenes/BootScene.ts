@@ -70,6 +70,12 @@ export class BootScene extends Phaser.Scene {
       frameWidth: 64,
       frameHeight: 64,
     });
+
+    this.load.spritesheet("egg", "./src/assets/sprites/egg.png", {
+      frameWidth: 512,
+      frameHeight: 512,
+    });
+    
     this.load.image("background", "./src/assets/images/background.png");
     this.createLoadingGraphics();
     this.load.on("complete", () => {
