@@ -15,6 +15,7 @@ export class MainScene extends Phaser.Scene {
   private antibodies: Phaser.GameObjects.Group;
   private particleLayer: Phaser.GameObjects.Group;
   private itemsLayer: Phaser.GameObjects.Group;
+  private finishBoundary: Boundary;
   constructor() {
     super({ key: "MainScene" });
   }
@@ -36,10 +37,14 @@ export class MainScene extends Phaser.Scene {
 
     this.addAntibodies();
 
-    // this.addItems();
-
     this.setWorldBounds();
     this.setWorldGarbageCollector();
+
+    //TODO: Implement a better way to do this.
+    /** After 20 seconds, the finish line descends and ends the game */
+    setTimeout(() => {
+      this.setFinishLine();
+    }, 20000);
 
     state.emitter.on("combo-milestone", () => {});
 
@@ -165,6 +170,26 @@ export class MainScene extends Phaser.Scene {
       p.init();
       this.particleLayer.add(p);
     }, 50);
+  }
+
+  private setFinishLine() {
+    const state = State.getInstance();
+    this.finishBoundary = new Boundary(
+      this,
+      this.game.canvas.width / 2,
+      0,
+      10,
+      this.game.canvas.width
+    );
+    this.finishBoundary.init();
+    this.finishBoundary.body.setSize(this.game.canvas.width, 10);
+    this.finishBoundary.setVelocityY(100);
+    this.physics.add.overlap(this.hero, this.finishBoundary, () => {
+      if (!state.getLevelComplete()) {
+        state.setLevelComplete(true);
+        console.log("Finished");
+      }
+    });
   }
 
   update() {}

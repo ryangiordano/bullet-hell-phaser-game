@@ -4,6 +4,7 @@ import { BootScene } from "./scenes/BootScene";
 import { MainScene } from "./scenes/MainScene";
 import { HUDScene } from "./scenes/HUDScene";
 import { styles } from "./lib/shared";
+import { GameOverScene } from "./scenes/GameOverScene";
 
 const config: Phaser.Types.Core.GameConfig = {
   title: "Baby-2022",
@@ -13,7 +14,7 @@ const config: Phaser.Types.Core.GameConfig = {
   zoom: 1,
   type: Phaser.AUTO,
   parent: "game",
-  scene: [BootScene, MainScene, HUDScene],
+  scene: [BootScene, MainScene, HUDScene, GameOverScene],
   input: {
     keyboard: true,
   },

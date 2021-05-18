@@ -10,6 +10,7 @@ export default class State {
   private static instance: State;
   private heroHealth = 3;
   private currentCombo = 0;
+  private levelComplete = false;
   constructor() {
     this.emitter.on("game-over", () => {
       //TODO: Scene transition
@@ -46,18 +47,26 @@ export default class State {
     this.set("currentCombo", value);
   }
 
+  setLevelComplete(value: boolean) {
+    this.set<boolean>("levelComplete", value);
+  }
+
   getHeroHealth() {
     return this.heroHealth;
   }
   getCurrentCombo() {
     return this.currentCombo;
   }
+  getLevelComplete() {
+    return this.levelComplete;
+  }
 
-  set(property: string, value: number) {
+  set<T>(property: string, value: T) {
     this[property] = value;
     this.emitter.emit("update-state", {
       heroHealth: this.getHeroHealth(),
       currentCombo: this.getCurrentCombo(),
+      levelComplete: this.getLevelComplete(),
     });
   }
 }
