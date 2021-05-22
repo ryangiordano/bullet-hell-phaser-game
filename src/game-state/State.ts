@@ -12,10 +12,7 @@ export default class State {
   private currentCombo = 0;
   private levelComplete = false;
   constructor() {
-    this.emitter.on("game-over", () => {
-      //TODO: Scene transition
-      console.log("Game over");
-    });
+
   }
   static getInstance() {
     if (!State.instance) {

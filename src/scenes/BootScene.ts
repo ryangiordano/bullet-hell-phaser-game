@@ -12,10 +12,8 @@ export class BootScene extends Phaser.Scene {
     }
   }
   private runStartupProcess() {
-    setTimeout(() => {
-      this.scene.start("MainScene");
-      this.scene.start("HUDScene");
-    });
+    this.scene.start("MainScene");
+    this.scene.start("HUDScene");
   }
 
   preload(): void {
@@ -75,7 +73,22 @@ export class BootScene extends Phaser.Scene {
       frameWidth: 512,
       frameHeight: 512,
     });
-    
+
+    this.load.spritesheet("sparkle", "./src/assets/sprites/sparkle.png", {
+      frameWidth: 128,
+      frameHeight: 128,
+    });
+
+    this.load.spritesheet("shock-wave", "./src/assets/sprites/shock-wave.png", {
+      frameWidth: 128,
+      frameHeight: 128,
+    });
+
+    this.load.spritesheet("critical", "./src/assets/sprites/critical.png", {
+      frameWidth: 128,
+      frameHeight: 128,
+    });
+
     this.load.image("background", "./src/assets/images/background.png");
     this.createLoadingGraphics();
     this.load.on("complete", () => {

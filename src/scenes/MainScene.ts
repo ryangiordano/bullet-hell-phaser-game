@@ -5,7 +5,6 @@ import Hit from "../components/map-objects/misc/Hit";
 import State from "../game-state/State";
 import Boundary from "../components/map-objects/background/Boundary";
 import Antibody from "../components/map-objects/enemies/Antibody";
-import Background from "../components/map-objects/background/Background";
 import Health from "../components/map-objects/items/Health";
 
 export class MainScene extends Phaser.Scene {
@@ -16,10 +15,21 @@ export class MainScene extends Phaser.Scene {
   private particleLayer: Phaser.GameObjects.Group;
   private itemsLayer: Phaser.GameObjects.Group;
   private finishBoundary: Boundary;
+  private antibodyInterval: NodeJS.Timeout;
+  private enemyInterval: NodeJS.Timeout;
+  private particleInterval: NodeJS.Timeout;
+  private finishLineTimeout: NodeJS.Timeout;
   constructor() {
     super({ key: "MainScene" });
   }
   preload() {}
+
+  private killHero() {
+    return new Promise<void>(async (resolve) => {
+      await this.hero.kill();
+      resolve();
+    });
+  }
 
   public create() {
     const state = State.getInstance();
@@ -41,20 +51,27 @@ export class MainScene extends Phaser.Scene {
     this.setWorldGarbageCollector();
 
     //TODO: Implement a better way to do this.
-    /** After 20 seconds, the finish line descends and ends the game */
-    setTimeout(() => {
-      this.setFinishLine();
-    }, 20000);
+    this.setFinishLine();
 
+    /** Do something after hitting a certain number of combos */
     state.emitter.on("combo-milestone", () => {});
-
+    state.emitter.on("game-over", async () => {
+      await this.killHero();
+      this.tearDown();
+      this.scene.pause();
+      this.scene.stop("HUDScene");
+      this.game.scene.start("GameOverScene");
+    });
     // Set collisions
     this.physics.add.overlap(
       this.enemies,
       this.hero,
       (enemy: Enemy, hero: Hero) => {
+        /** Hero charges enemy */
         if (hero.charging && !enemy.dying) {
           const rand = Math.floor(Math.random() * 100);
+          /** Enemy randomly drops health item */
+          //TODO: Maybe make this part of the enemy class as a callback.
           if (rand > 90) {
             setTimeout(() => {
               this.itemsLayer.add(new Health(this, enemy.x, enemy.y));
@@ -94,24 +111,11 @@ export class MainScene extends Phaser.Scene {
     });
   }
 
-  private addCompetition() {
-    setInterval(() => {
-      this.enemies.add(
-        new Enemy(
-          this,
-          Math.random() * this.game.canvas.width,
-          this.game.canvas.height + 50
-        )
-      );
-    }, 1000);
-  }
-
-  private addAntibodies() {
-    setInterval(() => {
-      this.antibodies.add(
-        new Antibody(this, Math.random() * this.game.canvas.width, -200)
-      );
-    }, 3000);
+  private tearDown() {
+    clearTimeout(this.antibodyInterval);
+    clearTimeout(this.particleInterval);
+    clearTimeout(this.enemyInterval);
+    clearTimeout(this.finishLineTimeout);
   }
 
   private setWorldBounds() {
@@ -165,31 +169,54 @@ export class MainScene extends Phaser.Scene {
   }
 
   private animateParticles() {
-    setInterval(() => {
+    this.particleInterval = setInterval(() => {
       const p = new Particle(this, Math.random() * this.game.canvas.width, -50);
       p.init();
       this.particleLayer.add(p);
     }, 50);
   }
 
+  private addAntibodies() {
+    this.antibodyInterval = setInterval(() => {
+      this.antibodies.add(
+        new Antibody(this, Math.random() * this.game.canvas.width, -200)
+      );
+    }, 3000);
+  }
+
+  private addCompetition() {
+    this.enemyInterval = setInterval(() => {
+      this.enemies.add(
+        new Enemy(
+          this,
+          Math.random() * this.game.canvas.width,
+          this.game.canvas.height + 50
+        )
+      );
+    }, 1000);
+  }
+
+  /** After 20 seconds, the finish line descends and ends the game */
   private setFinishLine() {
-    const state = State.getInstance();
-    this.finishBoundary = new Boundary(
-      this,
-      this.game.canvas.width / 2,
-      0,
-      10,
-      this.game.canvas.width
-    );
-    this.finishBoundary.init();
-    this.finishBoundary.body.setSize(this.game.canvas.width, 10);
-    this.finishBoundary.setVelocityY(100);
-    this.physics.add.overlap(this.hero, this.finishBoundary, () => {
-      if (!state.getLevelComplete()) {
-        state.setLevelComplete(true);
-        console.log("Finished");
-      }
-    });
+    this.finishLineTimeout = setTimeout(() => {
+      const state = State.getInstance();
+      this.finishBoundary = new Boundary(
+        this,
+        this.game.canvas.width / 2,
+        0,
+        10,
+        this.game.canvas.width
+      );
+      this.finishBoundary.init();
+      this.finishBoundary.body.setSize(this.game.canvas.width, 10);
+      this.finishBoundary.setVelocityY(100);
+      this.physics.add.overlap(this.hero, this.finishBoundary, () => {
+        if (!state.getLevelComplete()) {
+          state.setLevelComplete(true);
+          console.log("Finished");
+        }
+      });
+    }, 20000);
   }
 
   update() {}
