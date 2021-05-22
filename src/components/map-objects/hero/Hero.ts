@@ -1,3 +1,4 @@
+import State from "../../../game-state/State";
 import { toXY } from "../../../lib/animation/Animations";
 import { getKnockbackVector, styles } from "../../../lib/shared";
 import ShockWave from "../misc/ShockWave";
@@ -71,10 +72,13 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
   }
 
   public getHurt() {
+    const state = State.getInstance();
     if (!this.invuln) {
       this.anims.stop();
       this.setFrame(5);
-      this.spasm();
+      if (state.getHeroHealth() > 1) {
+        this.spasm();
+      }
       this.setInvulnerable();
       this.knockBack();
       setTimeout(() => {
@@ -129,13 +133,12 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
 
   public kill() {
     clearInterval(this.flashingInterval);
+    this.dead = true;
     this.anims.stop();
     this.setFrame(5);
-
+    this.setVelocity(0, 0);
+    this.setAcceleration(0, 0);
     return new Promise<void>(async (resolve) => {
-      this.dead = true;
-      this.setVelocity(0, 0);
-
       const playShockWave = () => {
         return new Promise<void>((resolve) => {
           new ShockWave(this.scene, this.x, this.y, 15, () => {

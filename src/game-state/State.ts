@@ -11,9 +11,7 @@ export default class State {
   private heroHealth = 3;
   private currentCombo = 0;
   private levelComplete = false;
-  constructor() {
-
-  }
+  constructor() {}
   static getInstance() {
     if (!State.instance) {
       State.instance = new State();
@@ -65,5 +63,12 @@ export default class State {
       currentCombo: this.getCurrentCombo(),
       levelComplete: this.getLevelComplete(),
     });
+  }
+
+  resetGame() {
+    this.emitter = new Phaser.Events.EventEmitter();
+    this.heroHealth = 3;
+    this.currentCombo = 0;
+    this.levelComplete = false;
   }
 }

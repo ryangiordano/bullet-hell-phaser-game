@@ -59,7 +59,6 @@ export class MainScene extends Phaser.Scene {
       await this.killHero();
       this.tearDown();
       this.scene.pause();
-      this.scene.stop("HUDScene");
       this.game.scene.start("GameOverScene");
     });
     // Set collisions
