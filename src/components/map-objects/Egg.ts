@@ -11,9 +11,11 @@ export default class Egg extends Phaser.Physics.Arcade.Sprite {
       frames: this.anims.generateFrameNumbers("egg", {
         frames: [0, 1],
       }),
-      frameRate: 10,
+      frameRate: 3,
     });
     this.anims.play("egg-idle");
-    this.setTint(styles.colors.lightGreen);
+    this.body.setCircle(255);
+    this.setBounce(1, 1);
+    this.setTint(styles.colors.white.hex);
   }
 }

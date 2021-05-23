@@ -19,7 +19,7 @@ export default class Sparkle extends Phaser.GameObjects.Sprite {
       key: "sparkle-animate",
     });
 
-    this.setTint(styles.colors.green);
+    this.setTint(styles.colors.green.hex);
     this.setAlpha(0.5);
   }
 }

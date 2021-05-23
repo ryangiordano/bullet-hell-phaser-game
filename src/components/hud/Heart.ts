@@ -13,7 +13,7 @@ export default class Heart extends Phaser.GameObjects.Sprite {
       frameRate: 9,
     });
 
-    this.setTint(styles.colors.lightGreen);
+    this.setTint(styles.colors.lightGreen.hex);
     this.setAlpha(0.8);
     // this.init();
     this.anims.play("heart-beat");

@@ -30,14 +30,14 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
     this.anims.play({
       key: "hero-idle",
     });
-    this.setTint(styles.colors.lightGreen);
+    this.setTint(styles.colors.lightGreen.hex);
   }
 
   init() {
     const b: any = this.body;
     b?.setDrag(500, 500);
     b?.setMaxVelocity(MAX_VELOCITY, MAX_VELOCITY);
-    this.body.setSize(50, 50);
+    this.body.setCircle(33, 33, 5);
   }
 
   private stopMovement() {
@@ -160,9 +160,17 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
         ({ x, y }) =>
           new Promise<void>((_resolve) => {
             const s = new Sparkle(this.scene, this.x, this.y, 24);
-            toXY(s, 1000, 0, x, y, this.scene, () => {
-              s.destroy();
-              _resolve();
+            toXY({
+              target: s,
+              duration: 1000,
+              delay: 0,
+              x,
+              y,
+              scene: this.scene,
+              onComplete: () => {
+                s.destroy();
+                _resolve();
+              },
             }).play();
           })
       );
@@ -181,7 +189,7 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
           this.y,
           "hero"
         );
-        shade.setTint(styles.colors.lightGreen);
+        shade.setTint(styles.colors.lightGreen.hex);
         shade.setAlpha(0.2);
         this.scene.add.existing(shade);
         setTimeout(() => {

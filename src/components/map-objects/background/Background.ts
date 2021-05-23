@@ -5,7 +5,7 @@ export default class Background extends Phaser.GameObjects.Image {
     super(scene, x, y, "background", 0);
     this.scene.add.existing(this);
     this.setScale(0.9, 40);
-    this.setAlpha(.8);
-    this.setTint(styles.colors.lightGreen);
+    this.setAlpha(0.8);
+    this.setTint(styles.colors.lightGreen.hex);
   }
 }

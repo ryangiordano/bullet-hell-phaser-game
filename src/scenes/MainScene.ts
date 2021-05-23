@@ -6,6 +6,9 @@ import State from "../game-state/State";
 import Boundary from "../components/map-objects/background/Boundary";
 import Antibody from "../components/map-objects/enemies/Antibody";
 import Health from "../components/map-objects/items/Health";
+import Egg from "../components/map-objects/Egg";
+import { toXY } from "../lib/animation/Animations";
+import { styles } from "../lib/shared";
 
 export class MainScene extends Phaser.Scene {
   public map: Phaser.Tilemaps.Tilemap;
@@ -19,6 +22,7 @@ export class MainScene extends Phaser.Scene {
   private enemyInterval: NodeJS.Timeout;
   private particleInterval: NodeJS.Timeout;
   private finishLineTimeout: NodeJS.Timeout;
+  private boundaryCollide: Phaser.GameObjects.Group;
   constructor() {
     super({ key: "MainScene" });
   }
@@ -42,6 +46,7 @@ export class MainScene extends Phaser.Scene {
     this.antibodies = new Phaser.GameObjects.Group(this);
     this.particleLayer = new Phaser.GameObjects.Group(this);
     this.itemsLayer = new Phaser.GameObjects.Group(this);
+    this.boundaryCollide = new Phaser.GameObjects.Group(this, [this.hero]);
     this.animateParticles();
     this.addCompetition();
 
@@ -51,13 +56,13 @@ export class MainScene extends Phaser.Scene {
     this.setWorldGarbageCollector();
 
     //TODO: Implement a better way to do this.
-    this.setFinishLine();
+    this.setFinish();
 
     /** Do something after hitting a certain number of combos */
     state.emitter.on("combo-milestone", () => {});
     state.emitter.on("game-over", async () => {
       await this.killHero();
-      this.tearDown();
+      this.stopSpawningObstacles();
       this.scene.pause();
       this.game.scene.start("GameOverScene");
     });
@@ -110,7 +115,7 @@ export class MainScene extends Phaser.Scene {
     });
   }
 
-  private tearDown() {
+  private stopSpawningObstacles() {
     clearTimeout(this.antibodyInterval);
     clearTimeout(this.particleInterval);
     clearTimeout(this.enemyInterval);
@@ -121,10 +126,10 @@ export class MainScene extends Phaser.Scene {
     const height = this.game.canvas.height;
     const width = this.game.canvas.width;
 
-    const left = new Boundary(this, 0, height / 2, 0, height);
-    const right = new Boundary(this, width, height / 2, 0, height);
-    const top = new Boundary(this, width / 2, 0, width, 0);
-    const bottom = new Boundary(this, width / 2, height, width, 0);
+    const left = new Boundary(this, 0, height / 2, 0, height * 2);
+    const right = new Boundary(this, width, height / 2, 0, height * 2);
+    const top = new Boundary(this, width / 2, 0, width * 2, 0);
+    const bottom = new Boundary(this, width / 2, height, width * 2, 0);
 
     const c = new Phaser.Physics.Arcade.StaticGroup(this.physics.world, this, [
       left,
@@ -138,7 +143,7 @@ export class MainScene extends Phaser.Scene {
     top.init();
     bottom.init();
 
-    this.physics.add.collider([c], this.hero);
+    this.physics.add.collider(c, this.boundaryCollide);
   }
 
   private setWorldGarbageCollector() {
@@ -196,26 +201,45 @@ export class MainScene extends Phaser.Scene {
   }
 
   /** After 20 seconds, the finish line descends and ends the game */
-  private setFinishLine() {
+  private setFinish() {
     this.finishLineTimeout = setTimeout(() => {
-      const state = State.getInstance();
-      this.finishBoundary = new Boundary(
-        this,
-        this.game.canvas.width / 2,
-        0,
-        10,
-        this.game.canvas.width
-      );
-      this.finishBoundary.init();
-      this.finishBoundary.body.setSize(this.game.canvas.width, 10);
-      this.finishBoundary.setVelocityY(100);
-      this.physics.add.overlap(this.hero, this.finishBoundary, () => {
-        if (!state.getLevelComplete()) {
-          state.setLevelComplete(true);
-          console.log("Finished");
+      this.stopSpawningObstacles();
+      const egg = new Egg(this, this.game.canvas.width / 2, -100);
+      const anim = toXY({
+        target: egg,
+        duration: 4000,
+        delay: 0,
+        x: 0,
+        y: this.game.canvas.height / 2,
+        scene: this,
+        ease: "Expo.easeOut",
+        onComplete: () => {
+          this.boundaryCollide.add(egg);
+        },
+      });
+
+      this.physics.add.collider(egg, this.hero, () => {
+        const state = State.getInstance();
+        if (this.hero.charging) {
+          if (!state.getLevelComplete()) {
+            egg.setVelocity(0, 0);
+            this.add.text(450, this.game.canvas.height / 2, "GOAL", {
+              fontFamily: "pixel",
+              color: styles.colors.darkGreen.string,
+              fontSize: "50px",
+              fontStyle: "bold",
+            });
+            this.scene.pause();
+            this.scene.stop("HUDScene");
+            setTimeout(() => {
+              this.scene.stop();
+              this.scene.start("VictoryScene");
+            }, 2000);
+          }
         }
       });
-    }, 20000);
+      anim.play();
+    }, 60000);
   }
 
   update() {}

@@ -11,12 +11,18 @@ export class GameOverScene extends Phaser.Scene {
 
   init() {
     this.setInputs();
+    const titleText = {
+      fontFamily: "pixel",
+      color: styles.colors.darkGreen.string,
+      fontSize: "50px",
+      fontStyle: "bold",
+    };
     this.add.text(
-      this.game.canvas.width / 2,
+      350,
       this.game.canvas.height / 2,
       "GAME OVER",
       {
-        color: "#ffffff",
+        ...titleText,
       }
     );
   }

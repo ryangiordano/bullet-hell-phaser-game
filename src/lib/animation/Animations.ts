@@ -75,18 +75,28 @@ export const textScaleUp = (
   return timeline;
 };
 
-export const toXY = (
+export const toXY = ({
   target,
-  duration: number,
-  delay: number,
+  duration,
+  delay,
   x = 50,
   y = 50,
-  scene: Phaser.Scene,
-  onComplete
-) => {
+  scene,
+  ease,
+  onComplete,
+}: {
+  target: any;
+  duration: number;
+  delay: number;
+  x: number;
+  y: number;
+  ease?: string;
+  scene: Phaser.Scene;
+  onComplete: () => void;
+}) => {
   const timeline = scene.tweens.createTimeline({
     targets: target,
-    ease: "Linear",
+    ease: ease || "Linear",
     loop: 0,
     delay,
     duration,

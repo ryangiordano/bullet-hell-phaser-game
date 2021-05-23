@@ -14,7 +14,7 @@ export default class Health extends Phaser.Physics.Arcade.Sprite {
       frameRate: 6,
     });
     this.anims.play("health-idle");
-    this.setTint(styles.colors.lightGreen);
+    this.setTint(styles.colors.lightGreen.hex);
     this.setVelocityY(-40);
   }
 }

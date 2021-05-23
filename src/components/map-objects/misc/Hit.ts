@@ -22,7 +22,7 @@ export default class Hit extends Phaser.GameObjects.Sprite {
       key: "hit",
     });
 
-    this.setTint(styles.colors.green);
+    this.setTint(styles.colors.green.hex);
     this.setAlpha(0.5);
   }
 }

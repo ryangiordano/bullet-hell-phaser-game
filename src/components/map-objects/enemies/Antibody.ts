@@ -19,7 +19,7 @@ export default class Antibody extends Phaser.Physics.Arcade.Sprite {
       frameRate: 6,
     });
     this.anims.play("antibody-idle");
-    this.setTint(styles.colors.lightGreen);
+    this.setTint(styles.colors.lightGreen.hex);
     this.setVelocityY(velocity);
     this.body.setCircle(128);
 
