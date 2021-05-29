@@ -10,9 +10,7 @@ export class HUDScene extends Phaser.Scene {
     const hud = new HeadsUpDisplay(this, 50, 50);
     this.add.existing(hud);
 
-    this.events.on("destroy", () => {
-      console.log("???");
-    });
+    this.events.on("destroy", () => {});
   }
 
   beforeDestroy() {}

@@ -3,11 +3,11 @@ import { styles, getKnockbackVector } from "../../../lib/shared";
 export default class Antibody extends Phaser.Physics.Arcade.Sprite {
   public dying: boolean = false;
 
-  constructor(scene, x, y) {
+  constructor(scene, x, y, velocity?: number) {
     super(scene, x, y, "antibody", 0);
 
     this.scene.events.on("update", this.update);
-    const velocity = Math.max(Math.random() * 300, 100);
+    velocity = velocity ?? Math.max(Math.random() * 300, 100);
     this.scene.physics.add.existing(this);
     this.scene.add.existing(this);
     this.anims.create({

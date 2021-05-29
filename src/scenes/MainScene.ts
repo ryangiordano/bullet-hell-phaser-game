@@ -1,3 +1,4 @@
+import { ExecutableLevelSegment } from "./../components/systems/LevelBuilder";
 import Enemy from "../components/map-objects/enemies/Enemy";
 import Hero from "../components/map-objects/hero/Hero";
 import Particle from "../components/map-objects/background/Particle";
@@ -8,23 +9,27 @@ import Antibody from "../components/map-objects/enemies/Antibody";
 import Health from "../components/map-objects/items/Health";
 import Egg from "../components/map-objects/Egg";
 import { toXY } from "../lib/animation/Animations";
+import levelOne from "../data/levels/1";
+
 import { styles } from "../lib/shared";
+import LevelBuilder, {
+  LevelBlockType,
+} from "../components/systems/LevelBuilder";
 
 export class MainScene extends Phaser.Scene {
   public map: Phaser.Tilemaps.Tilemap;
-  private hero: Hero;
-  private enemies: Phaser.GameObjects.Group;
-  private antibodies: Phaser.GameObjects.Group;
-  private particleLayer: Phaser.GameObjects.Group;
-  private itemsLayer: Phaser.GameObjects.Group;
-  private finishBoundary: Boundary;
-  private antibodyInterval: NodeJS.Timeout;
-  private enemyInterval: NodeJS.Timeout;
-  private particleInterval: NodeJS.Timeout;
-  private finishLineTimeout: NodeJS.Timeout;
-  private boundaryCollide: Phaser.GameObjects.Group;
-  constructor() {
-    super({ key: "MainScene" });
+  protected hero: Hero;
+  protected goal: Phaser.GameObjects.Group;
+  protected enemies: Phaser.GameObjects.Group;
+  protected antibodies: Phaser.GameObjects.Group;
+  protected particleLayer: Phaser.GameObjects.Group;
+  protected itemsLayer: Phaser.GameObjects.Group;
+  protected finishBoundary: Boundary;
+  protected particleInterval: NodeJS.Timeout;
+
+  protected boundaryCollide: Phaser.GameObjects.Group;
+  constructor(key) {
+    super({ key: key || "MainScene" });
   }
   preload() {}
 
@@ -43,20 +48,20 @@ export class MainScene extends Phaser.Scene {
     );
     this.hero.init();
     this.enemies = new Phaser.GameObjects.Group(this);
+    this.goal = new Phaser.GameObjects.Group(this);
     this.antibodies = new Phaser.GameObjects.Group(this);
     this.particleLayer = new Phaser.GameObjects.Group(this);
     this.itemsLayer = new Phaser.GameObjects.Group(this);
     this.boundaryCollide = new Phaser.GameObjects.Group(this, [this.hero]);
+    const level = this.buildLevel();
+    this.playLevel(level);
     this.animateParticles();
-    this.addCompetition();
-
-    this.addAntibodies();
 
     this.setWorldBounds();
     this.setWorldGarbageCollector();
 
     //TODO: Implement a better way to do this.
-    this.setFinish();
+    // this.setFinish();
 
     /** Do something after hitting a certain number of combos */
     state.emitter.on("combo-milestone", () => {});
@@ -113,13 +118,35 @@ export class MainScene extends Phaser.Scene {
       item.destroy();
       state.incrementHealth();
     });
+
+    this.physics.add.collider(this.goal, this.hero, (egg: Egg, hero: Hero) => {
+      const state = State.getInstance();
+      if (hero.charging) {
+        if (!state.getLevelComplete()) {
+          egg.setVelocity(0, 0);
+          this.add.text(450, this.game.canvas.height / 2, "GOAL", {
+            fontFamily: "pixel",
+            color: styles.colors.darkGreen.string,
+            fontSize: "50px",
+            fontStyle: "bold",
+          });
+          this.scene.pause();
+          this.scene.stop("HUDScene");
+          setTimeout(() => {
+            this.scene.stop();
+            this.scene.start("VictoryScene");
+          }, 2000);
+        }
+      }
+    });
+
+    this.postInit();
   }
 
-  private stopSpawningObstacles() {
-    clearTimeout(this.antibodyInterval);
+  protected postInit() {}
+
+  protected stopSpawningObstacles() {
     clearTimeout(this.particleInterval);
-    clearTimeout(this.enemyInterval);
-    clearTimeout(this.finishLineTimeout);
   }
 
   private setWorldBounds() {
@@ -144,6 +171,7 @@ export class MainScene extends Phaser.Scene {
     bottom.init();
 
     this.physics.add.collider(c, this.boundaryCollide);
+    this.physics.add.collider(c, this.goal);
   }
 
   private setWorldGarbageCollector() {
@@ -180,66 +208,24 @@ export class MainScene extends Phaser.Scene {
     }, 50);
   }
 
-  private addAntibodies() {
-    this.antibodyInterval = setInterval(() => {
-      this.antibodies.add(
-        new Antibody(this, Math.random() * this.game.canvas.width, -200)
-      );
-    }, 3000);
+  private buildLevel() {
+    const levelBuilder = new LevelBuilder(this);
+    return levelBuilder.build(levelOne, {
+      [LevelBlockType.antibody]: (e) => {
+        this.antibodies.add(e);
+      },
+      [LevelBlockType.rival]: (e) => {
+        this.enemies.add(e);
+      },
+      [LevelBlockType.goal]: (e) => {
+        this.goal.add(e);
+      },
+    });
   }
 
-  private addCompetition() {
-    this.enemyInterval = setInterval(() => {
-      this.enemies.add(
-        new Enemy(
-          this,
-          Math.random() * this.game.canvas.width,
-          this.game.canvas.height + 50
-        )
-      );
-    }, 1000);
-  }
-
-  /** After 20 seconds, the finish line descends and ends the game */
-  private setFinish() {
-    this.finishLineTimeout = setTimeout(() => {
-      this.stopSpawningObstacles();
-      const egg = new Egg(this, this.game.canvas.width / 2, -100);
-      const anim = toXY({
-        target: egg,
-        duration: 4000,
-        delay: 0,
-        x: 0,
-        y: this.game.canvas.height / 2,
-        scene: this,
-        ease: "Expo.easeOut",
-        onComplete: () => {
-          this.boundaryCollide.add(egg);
-        },
-      });
-
-      this.physics.add.collider(egg, this.hero, () => {
-        const state = State.getInstance();
-        if (this.hero.charging) {
-          if (!state.getLevelComplete()) {
-            egg.setVelocity(0, 0);
-            this.add.text(450, this.game.canvas.height / 2, "GOAL", {
-              fontFamily: "pixel",
-              color: styles.colors.darkGreen.string,
-              fontSize: "50px",
-              fontStyle: "bold",
-            });
-            this.scene.pause();
-            this.scene.stop("HUDScene");
-            setTimeout(() => {
-              this.scene.stop();
-              this.scene.start("VictoryScene");
-            }, 2000);
-          }
-        }
-      });
-      anim.play();
-    }, 60000);
+  private playLevel(level: ExecutableLevelSegment[]) {
+    const levelBuilder = new LevelBuilder(this);
+    levelBuilder.play(level);
   }
 
   update() {}
