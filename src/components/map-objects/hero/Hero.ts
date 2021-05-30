@@ -8,6 +8,12 @@ const MOVEMENT_VELOCITY = 1000;
 const TACKLE_MAX_VELOCITY = 800;
 const MAX_VELOCITY = 400;
 
+enum HeroStates {
+  normal,
+  super,
+  superDuper,
+}
+
 export default class Hero extends Phaser.Physics.Arcade.Sprite {
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   public invuln: boolean = false;

@@ -1,3 +1,4 @@
+import { jiggle } from "../../../lib/animation/Animations";
 import { styles, getKnockbackVector } from "../../../lib/shared";
 
 export default class Antibody extends Phaser.Physics.Arcade.Sprite {
@@ -38,5 +39,8 @@ export default class Antibody extends Phaser.Physics.Arcade.Sprite {
     setTimeout(() => {
       this.destroy();
     }, 200);
+  }
+  jiggle() {
+    jiggle(this, this.scene, () => {}).play();
   }
 }

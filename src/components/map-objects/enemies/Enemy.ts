@@ -1,3 +1,4 @@
+import { scaleOut } from "./../../../lib/animation/Animations";
 import { styles, getKnockbackVector } from "../../../lib/shared";
 import { SmallSparkleExplosion } from "../misc/SparkleExplosion";
 
@@ -23,16 +24,21 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.body.setSize(50, 100);
   }
 
-  kill() {
+  async kill() {
     if (this.dying) {
       return;
     }
+    this.anims.stop();
+    this.setFrame(5);
     this.dying = true;
     const { x, y } = getKnockbackVector(this.body, 400);
     this.setVelocity(x, y);
-    setTimeout(async () => {
-      SmallSparkleExplosion(this.scene, this.x, this.y);
-      this.destroy();
-    }, 200);
+    const s = new Promise<void>((resolve) => {
+      const an = scaleOut(this, this.scene, () => resolve());
+      an.play();
+    });
+    await s;
+    SmallSparkleExplosion(this.scene, this.x, this.y);
+    this.destroy();
   }
 }

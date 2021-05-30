@@ -89,7 +89,7 @@ export class MainScene extends Phaser.Scene {
           }
           enemy.kill();
           state.incrementCombo();
-          if (state.getCurrentCombo() > 1) {
+          if (state.getCurrentCombo() > 5) {
             const c = new Phaser.GameObjects.Container(this, enemy.x, enemy.y);
             this.add.existing(c);
 
@@ -129,21 +129,32 @@ export class MainScene extends Phaser.Scene {
       }
     );
 
-    this.physics.add.overlap(this.hero, this.antibodies, (hero: Hero) => {
-      if (!hero.invuln) {
-        this.add.existing(new Hit(this, hero.x, hero.y));
-        hero.getHurt();
-        state.setCombo(0);
-        state.decrementHealth();
+    this.physics.add.overlap(
+      this.hero,
+      this.antibodies,
+      (hero: Hero, antibody: Antibody) => {
+        if (!hero.invuln) {
+          this.add.existing(new Hit(this, hero.x, hero.y));
+          hero.getHurt();
+          antibody.jiggle();
+          state.setCombo(0);
+          state.decrementHealth();
+        }
       }
-    });
+    );
 
-    this.physics.add.overlap(this.enemies, this.antibodies, (enemy: Enemy) => {
-      if (!enemy.dying) {
-        enemy.kill();
-        this.add.existing(new Hit(this, enemy.x, enemy.y));
+    this.physics.add.overlap(
+      this.enemies,
+      this.antibodies,
+      (enemy: Enemy, antibody: Antibody) => {
+        antibody.jiggle();
+
+        if (!enemy.dying) {
+          enemy.kill();
+          this.add.existing(new Hit(this, enemy.x, enemy.y));
+        }
       }
-    });
+    );
     this.physics.add.overlap(this.hero, this.itemsLayer, (_, item) => {
       item.destroy();
       state.incrementHealth();
@@ -151,6 +162,8 @@ export class MainScene extends Phaser.Scene {
 
     this.physics.add.collider(this.goal, this.hero, (egg: Egg, hero: Hero) => {
       const state = State.getInstance();
+      egg.jiggle();
+
       if (hero.charging) {
         if (!state.getLevelComplete()) {
           egg.setVelocity(0, 0);

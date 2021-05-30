@@ -1,3 +1,4 @@
+import { jiggle } from "../../lib/animation/Animations";
 import { styles } from "../../lib/shared";
 
 export default class Egg extends Phaser.Physics.Arcade.Sprite {
@@ -17,5 +18,9 @@ export default class Egg extends Phaser.Physics.Arcade.Sprite {
     this.body.setCircle(255);
     this.setBounce(1, 1);
     this.setTint(styles.colors.white.hex);
+  }
+
+  jiggle() {
+    jiggle(this, this.scene, () => {}).play();
   }
 }

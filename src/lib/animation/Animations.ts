@@ -100,14 +100,14 @@ export const scaleIn = (target, scene: Phaser.Scene, onComplete) => {
     x: 100,
     y: 100,
     scaleX: {
-      getStart: () =>.5,
-      getEnd: () =>.5,
+      getStart: () => 0.5,
+      getEnd: () => 0.5,
     },
     scaleY: {
-      getStart: () =>.5,
-      getEnd: () =>.5,
+      getStart: () => 0.5,
+      getEnd: () => 0.5,
     },
-    duration: 300
+    duration: 300,
   });
   timeline.add({
     targets: target,
@@ -150,6 +150,67 @@ export const scaleIn = (target, scene: Phaser.Scene, onComplete) => {
     },
     duration: 500,
   });
+  timeline.setCallback("onComplete", onComplete);
+  return timeline;
+};
+
+export const scaleOut = (target, scene: Phaser.Scene, onComplete) => {
+  const timeline = scene.tweens.createTimeline({
+    targets: target,
+    ease: "Cubic",
+    loop: 0,
+  });
+  timeline.add({
+    targets: target,
+    ease: "Cubic",
+    scaleX: {
+      getEnd: () => 0.3,
+    },
+    scaleY: {
+      getEnd: () => 0.3,
+    },
+    duration: 300,
+  });
+
+  timeline.setCallback("onComplete", onComplete);
+  return timeline;
+};
+
+export const jiggle = (target, scene: Phaser.Scene, onComplete) => {
+  const timeline = scene.tweens.createTimeline({
+    targets: target,
+    ease: "Cubic",
+    loop: 0,
+  });
+  for (let i = 0; i < 3; i++) {
+    timeline.add({
+      targets: target,
+      ease: "Cubic",
+      scaleX: {
+        getStart: () => 1,
+        getEnd: () => 0.95,
+      },
+      scaleY: {
+        getStart: () => 1,
+        getEnd: () => 0.95,
+      },
+      duration: 50,
+    });
+    timeline.add({
+      targets: target,
+      ease: "Cubic",
+      scaleX: {
+        getStart: () => 0.95,
+        getEnd: () => 1,
+      },
+      scaleY: {
+        getStart: () => 0.95,
+        getEnd: () => 1,
+      },
+      duration: 50,
+    });
+  }
+
   timeline.setCallback("onComplete", onComplete);
   return timeline;
 };
