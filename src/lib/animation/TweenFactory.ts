@@ -11,6 +11,7 @@ interface TweenFactoryConfig {
   scaleX?: number;
   onComplete?: Function;
   yoyo?: boolean;
+  angle?: object;
   x?: string;
   y?: string;
 }
@@ -38,6 +39,14 @@ export class TweenFactory {
     this.tweenConfig.ease = ease;
     return this;
   }
+
+  public rotate() {
+    this.tweenConfig.angle = {
+      getStart: () => 0,
+      getEnd: () => 360,
+    };
+    return this;
+  }
   public fadeIn(duration) {
     this.tweenConfig.targets.forEach((target) => target.setAlpha(0));
     this.tweenConfig.alpha = {
@@ -45,7 +54,6 @@ export class TweenFactory {
       getEnd: () => 1,
     };
     this.tweenConfig.duration = duration;
-    this.tweenConfig;
     return this;
   }
   public fadeOut() {

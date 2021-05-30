@@ -46,6 +46,20 @@ const scaleFadeIn = (target, distance = -80, duration = 100) =>
     .scaleX(0.1, 1)
     .getConfig();
 
+const _spinScaleIn = (
+  target,
+  duration = 100,
+  from = 1,
+  to = 1.1,
+  ease = "Linear"
+) =>
+  builder
+    .createTween(target, duration, 0, ease)
+    .scaleY(from, to)
+    .scaleX(from, to)
+    .rotate()
+    .getConfig();
+
 const fadeOut = (target) =>
   builder.createTween(target, 300, 500).fadeOut().getConfig();
 
@@ -71,6 +85,71 @@ export const textScaleUp = (
   timeline.add(scaleFadeIn(target, height));
   timeline.add(boing(target));
   timeline.add(fadeOut(target));
+  timeline.setCallback("onComplete", onComplete);
+  return timeline;
+};
+
+export const scaleIn = (target, scene: Phaser.Scene, onComplete) => {
+  const timeline = scene.tweens.createTimeline({
+    targets: target,
+    ease: "Cubic",
+    loop: 0,
+  });
+  timeline.add({
+    targets: target,
+    x: 100,
+    y: 100,
+    scaleX: {
+      getStart: () =>.5,
+      getEnd: () =>.5,
+    },
+    scaleY: {
+      getStart: () =>.5,
+      getEnd: () =>.5,
+    },
+    duration: 300
+  });
+  timeline.add({
+    targets: target,
+    ease: "Cubic",
+    scaleX: {
+      getStart: () => 0,
+      getEnd: () => 1.5,
+    },
+    scaleY: {
+      getStart: () => 0,
+      getEnd: () => 1.5,
+    },
+    alpha: {
+      getStart: () => 0,
+      getEnd: () => 1,
+    },
+    duration: 200,
+  });
+  timeline.add({
+    targets: target,
+    alpha: {
+      getStart: () => 1,
+      getEnd: () => 1,
+    },
+    duration: 1000,
+  });
+  timeline.add({
+    targets: target,
+    alpha: {
+      getStart: () => 1,
+      getEnd: () => 0,
+    },
+    scaleX: {
+      getStart: () => 1.5,
+      getEnd: () => 0,
+    },
+    scaleY: {
+      getStart: () => 1.5,
+      getEnd: () => 0,
+    },
+    duration: 500,
+  });
   timeline.setCallback("onComplete", onComplete);
   return timeline;
 };

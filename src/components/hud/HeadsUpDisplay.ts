@@ -13,7 +13,7 @@ export class HeadsUpDisplay extends Phaser.GameObjects.Container {
       "update-state",
       ({ heroHealth, currentCombo }: CurrentState) => {
         this.setHeroHealth(heroHealth);
-        this.setCurrentCombo(currentCombo);
+        // this.setCurrentCombo(currentCombo);
       }
     );
 
@@ -31,7 +31,7 @@ export class HeadsUpDisplay extends Phaser.GameObjects.Container {
 
     this.heroHealth = state.getHeroHealth();
     this.renderHearts();
-    this.renderCombo();
+    // this.renderCombo();
   }
 
   // beforeDestroy() {

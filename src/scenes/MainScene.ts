@@ -8,13 +8,14 @@ import Boundary from "../components/map-objects/background/Boundary";
 import Antibody from "../components/map-objects/enemies/Antibody";
 import Health from "../components/map-objects/items/Health";
 import Egg from "../components/map-objects/Egg";
-import { toXY } from "../lib/animation/Animations";
+import { scaleIn } from "../lib/animation/Animations";
 import levelOne from "../data/levels/1";
 
 import { styles } from "../lib/shared";
 import LevelBuilder, {
   LevelBlockType,
 } from "../components/systems/LevelBuilder";
+import Flash from "../components/map-objects/misc/Flash";
 
 export class MainScene extends Phaser.Scene {
   public map: Phaser.Tilemaps.Tilemap;
@@ -88,6 +89,35 @@ export class MainScene extends Phaser.Scene {
           }
           enemy.kill();
           state.incrementCombo();
+          if (state.getCurrentCombo() > 1) {
+            const c = new Phaser.GameObjects.Container(this, enemy.x, enemy.y);
+            this.add.existing(c);
+
+            const f = new Flash(this, 0, 0);
+            const text = new Phaser.GameObjects.Text(
+              this,
+              -12,
+              -15,
+              `${state.getCurrentCombo()}`,
+              {
+                fontSize: "25px",
+                fontStyle: "bold",
+                fontFamily: "pixel",
+                color: styles.colors.green.string,
+                wordWrap: {
+                  width: 100,
+                },
+              }
+            );
+            text.setAlign("center");
+            c.add(f);
+            c.add(text);
+
+            const tl = scaleIn(c, this, () => {
+              f.destroy();
+            });
+            tl.play();
+          }
           hero.knockBack(300);
           this.add.existing(new Hit(this, hero.x, hero.y));
         } else if (!hero.invuln && !hero.charging) {

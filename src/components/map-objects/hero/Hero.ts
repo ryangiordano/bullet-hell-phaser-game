@@ -1,8 +1,7 @@
 import State from "../../../game-state/State";
-import { toXY } from "../../../lib/animation/Animations";
 import { getKnockbackVector, styles } from "../../../lib/shared";
 import ShockWave from "../misc/ShockWave";
-import Sparkle from "../misc/Sparkle";
+import SparkleExplosion from "../misc/SparkleExplosion";
 
 const TACKLE_VELOCITY = 4000;
 const MOVEMENT_VELOCITY = 1000;
@@ -150,31 +149,7 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
       await playShockWave();
 
       this.setAlpha(0);
-
-      const sparkleExplosion = [
-        { x: 0, y: -600 },
-        { x: 0, y: 600 },
-        { x: 600, y: 0 },
-        { x: -600, y: 0 },
-      ].map(
-        ({ x, y }) =>
-          new Promise<void>((_resolve) => {
-            const s = new Sparkle(this.scene, this.x, this.y, 24);
-            toXY({
-              target: s,
-              duration: 1000,
-              delay: 0,
-              x,
-              y,
-              scene: this.scene,
-              onComplete: () => {
-                s.destroy();
-                _resolve();
-              },
-            }).play();
-          })
-      );
-      await Promise.all(sparkleExplosion);
+      await SparkleExplosion(this.scene, this.x, this.y);
       this.destroy();
       resolve();
     });

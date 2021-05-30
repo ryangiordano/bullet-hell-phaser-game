@@ -24,7 +24,7 @@ export default [
     ],
   },
   {
-    levelBlocks: [CreateWait(5000)],
+    levelBlocks: [CreateWait(10000)],
   },
   {
     levelBlocks: [CreateGoal()],
