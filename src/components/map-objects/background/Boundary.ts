@@ -2,11 +2,11 @@ import { styles, getKnockbackVector } from "../../../lib/shared";
 
 export default class Boundary extends Phaser.Physics.Arcade.Sprite {
   constructor(
-    scene,
+    scene: Phaser.Scene,
     xPosition: number,
     yPosition: number,
-    private sizeX,
-    private sizeY
+    private sizeX: number,
+    private sizeY: number
   ) {
     super(scene, xPosition, yPosition, null);
   }

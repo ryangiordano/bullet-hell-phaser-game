@@ -261,10 +261,10 @@ export class MainScene extends Phaser.Scene {
     const height = this.game.canvas.height;
     const width = this.game.canvas.width;
 
-    const left = new Boundary(this, 0, height / 2, 0, height * 2);
-    const right = new Boundary(this, width, height / 2, 0, height * 2);
-    const top = new Boundary(this, width / 2, 0, width * 2, 0);
-    const bottom = new Boundary(this, width / 2, height, width * 2, 0);
+    const left = new Boundary(this, -250, height / 2, 500, height * 2);
+    const right = new Boundary(this, width + 250, height / 2, 500, height * 2);
+    const top = new Boundary(this, width / 2, -250, width * 2, 500);
+    const bottom = new Boundary(this, width / 2, height + 250, width * 2, 500);
 
     const c = new Phaser.Physics.Arcade.StaticGroup(this.physics.world, this, [
       left,

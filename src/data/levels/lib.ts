@@ -113,7 +113,7 @@ export const CreateGoal = () => {
   return {
     type: LevelBlockType.goal,
     posX: LevelPositions.gameCenterX,
-    posY: LevelPositions.gameTop,
+    spawnY: -250,
   };
 };
 

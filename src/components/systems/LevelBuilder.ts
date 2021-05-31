@@ -1,6 +1,6 @@
 import Enemy from "../map-objects/enemies/Enemy";
 import Antibody from "../map-objects/enemies/Antibody";
-import { asyncForEach } from "../../lib/utility";
+import { asyncForEach, wait } from "../../lib/utility";
 import Egg from "../map-objects/Egg";
 
 export enum LevelBlockType {
@@ -185,8 +185,9 @@ export default class LevelBuilder {
     { spawnX, spawnY, duration, posX, posY }: LevelBlock,
     addToGroup: (e: Phaser.Physics.Arcade.Sprite) => void
   ) {
-
-    return new Promise<void>((resolve) => {
+    return new Promise<void>(async (resolve) => {
+      this.scene.emitter.emit("stop-background");
+      await wait(3000);
       const egg = new Egg(
         this.scene,
         this.getLevelPosition(posX) ?? spawnX,
@@ -194,13 +195,12 @@ export default class LevelBuilder {
       );
       const d = this.scene.add.existing(egg);
       egg.setVelocity(0, 100);
-      this.scene.emitter.emit("stop-background")
 
-      setTimeout(() => {
-        egg.setVelocity(0, 0);
+      await wait(7000);
+      egg.setVelocity(0, 0);
+      egg.setDrag(3300);
 
-        addToGroup(d);
-      }, 7000);
+      addToGroup(d);
       setTimeout(() => resolve(), duration ?? 0);
     });
   }
