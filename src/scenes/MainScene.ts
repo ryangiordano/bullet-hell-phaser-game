@@ -1,6 +1,6 @@
 import { ExecutableLevelSegment } from "./../components/systems/LevelBuilder";
 import Enemy from "../components/map-objects/enemies/Enemy";
-import Hero from "../components/map-objects/hero/Hero";
+import Hero, { HeroStates } from "../components/map-objects/hero/Hero";
 import Particle from "../components/map-objects/background/Particle";
 import Hit from "../components/map-objects/misc/Hit";
 import State from "../game-state/State";
@@ -16,13 +16,16 @@ import LevelBuilder, {
   LevelBlockType,
 } from "../components/systems/LevelBuilder";
 import Flash from "../components/map-objects/misc/Flash";
+import ShockWave from "../components/map-objects/misc/ShockWave";
 
 export class MainScene extends Phaser.Scene {
+  public emitter = new Phaser.Events.EventEmitter();
   public map: Phaser.Tilemaps.Tilemap;
   protected hero: Hero;
   protected goal: Phaser.GameObjects.Group;
   protected enemies: Phaser.GameObjects.Group;
   protected antibodies: Phaser.GameObjects.Group;
+  protected shockwaves: Phaser.GameObjects.Group;
   protected particleLayer: Phaser.GameObjects.Group;
   protected itemsLayer: Phaser.GameObjects.Group;
   protected finishBoundary: Boundary;
@@ -31,6 +34,9 @@ export class MainScene extends Phaser.Scene {
   protected boundaryCollide: Phaser.GameObjects.Group;
   constructor(key) {
     super({ key: key || "MainScene" });
+    this.emitter.on("stop-background", () => {
+      this.stopBackground();
+    });
   }
   preload() {}
 
@@ -39,6 +45,43 @@ export class MainScene extends Phaser.Scene {
       await this.hero.kill();
       resolve();
     });
+  }
+
+  /** Animate combo visual */
+  private animateCombo(x, y) {
+    const state = State.getInstance();
+    const combo = state.getCurrentCombo();
+
+    if (combo === 5 || combo >= 20) {
+      const state = State.getInstance();
+      const c = new Phaser.GameObjects.Container(this, x, y);
+      this.add.existing(c);
+
+      const f = new Flash(this, 0, 0);
+      const text = new Phaser.GameObjects.Text(
+        this,
+        -12,
+        -15,
+        `${state.getCurrentCombo()}`,
+        {
+          fontSize: "25px",
+          fontStyle: "bold",
+          fontFamily: "pixel",
+          color: styles.colors.green.string,
+          wordWrap: {
+            width: 100,
+          },
+        }
+      );
+      text.setAlign("center");
+      c.add(f);
+      c.add(text);
+
+      const tl = scaleIn(c, this, () => {
+        f.destroy();
+      });
+      tl.play();
+    }
   }
 
   public create() {
@@ -51,6 +94,7 @@ export class MainScene extends Phaser.Scene {
     this.enemies = new Phaser.GameObjects.Group(this);
     this.goal = new Phaser.GameObjects.Group(this);
     this.antibodies = new Phaser.GameObjects.Group(this);
+    this.shockwaves = new Phaser.GameObjects.Group(this);
     this.particleLayer = new Phaser.GameObjects.Group(this);
     this.itemsLayer = new Phaser.GameObjects.Group(this);
     this.boundaryCollide = new Phaser.GameObjects.Group(this, [this.hero]);
@@ -72,7 +116,12 @@ export class MainScene extends Phaser.Scene {
       this.scene.pause();
       this.game.scene.start("GameOverScene");
     });
+
     // Set collisions
+
+    /** Enemies can hurt the hero, or get killed by him.
+     * If the hero has a large enough combo, he can generate shockwaves
+     */
     this.physics.add.overlap(
       this.enemies,
       this.hero,
@@ -88,37 +137,20 @@ export class MainScene extends Phaser.Scene {
             }, 300);
           }
           enemy.kill();
-          state.incrementCombo();
-          if (state.getCurrentCombo() > 5) {
-            const c = new Phaser.GameObjects.Container(this, enemy.x, enemy.y);
-            this.add.existing(c);
-
-            const f = new Flash(this, 0, 0);
-            const text = new Phaser.GameObjects.Text(
-              this,
-              -12,
-              -15,
-              `${state.getCurrentCombo()}`,
-              {
-                fontSize: "25px",
-                fontStyle: "bold",
-                fontFamily: "pixel",
-                color: styles.colors.green.string,
-                wordWrap: {
-                  width: 100,
-                },
-              }
-            );
-            text.setAlign("center");
-            c.add(f);
-            c.add(text);
-
-            const tl = scaleIn(c, this, () => {
-              f.destroy();
-            });
-            tl.play();
+          const combo = state.getCurrentCombo();
+          if (this.hero.heroState === HeroStates.super) {
+            const s = new ShockWave(this, enemy.x, enemy.y, 9, 2);
+            this.shockwaves.add(s);
+          } else if (this.hero.heroState === HeroStates.superDuper) {
+            const s = new ShockWave(this, enemy.x, enemy.y, 9, 4);
+            this.shockwaves.add(s);
           }
+          state.incrementCombo();
+          this.hero.setHeroStateOnCombo(combo);
+
+          this.animateCombo(enemy.x, enemy.y);
           hero.knockBack(300);
+
           this.add.existing(new Hit(this, hero.x, hero.y));
         } else if (!hero.invuln && !hero.charging) {
           this.add.existing(new Hit(this, enemy.x, enemy.y));
@@ -129,6 +161,16 @@ export class MainScene extends Phaser.Scene {
       }
     );
 
+    /** Enemies get killed by shockwaves, incrementing your combo */
+    this.physics.add.overlap(this.enemies, this.shockwaves, (enemy: Enemy) => {
+      if (!enemy.dying) {
+        enemy.kill();
+        state.incrementCombo();
+        this.animateCombo(enemy.x, enemy.y);
+      }
+    });
+
+    /** Hero gets hurt by antibodies */
     this.physics.add.overlap(
       this.hero,
       this.antibodies,
@@ -143,6 +185,7 @@ export class MainScene extends Phaser.Scene {
       }
     );
 
+    /** The enemies are killed by antibodies */
     this.physics.add.overlap(
       this.enemies,
       this.antibodies,
@@ -155,11 +198,16 @@ export class MainScene extends Phaser.Scene {
         }
       }
     );
+
+    /** There hero collects items */
     this.physics.add.overlap(this.hero, this.itemsLayer, (_, item) => {
       item.destroy();
       state.incrementHealth();
     });
 
+    /** The goal can interact with the hero
+     * Upon being charged at, the game will transition to the win scene
+     */
     this.physics.add.collider(this.goal, this.hero, (egg: Egg, hero: Hero) => {
       const state = State.getInstance();
       egg.jiggle();
@@ -167,6 +215,7 @@ export class MainScene extends Phaser.Scene {
       if (hero.charging) {
         if (!state.getLevelComplete()) {
           egg.setVelocity(0, 0);
+          egg.wake();
           this.add.text(450, this.game.canvas.height / 2, "GOAL", {
             fontFamily: "pixel",
             color: styles.colors.darkGreen.string,
@@ -186,12 +235,28 @@ export class MainScene extends Phaser.Scene {
     this.postInit();
   }
 
+  /** Followup function for custom logic after scene initializes */
   protected postInit() {}
 
+  /** Clear the timeout for any items that were on a timer
+   * Used in Time Trial mode to stop all obstacles from spawning
+   */
   protected stopSpawningObstacles() {
     clearTimeout(this.particleInterval);
   }
 
+  protected stopBackground() {
+    this.stopSpawningObstacles();
+    this.particleLayer.children.entries.forEach(
+      (c: Phaser.Physics.Arcade.Sprite) => {
+        c.setDrag(1500);
+      }
+    );
+  }
+
+  /** Set the static boundaries that keep the hero and goal from
+   * wandering outside them.
+   */
   private setWorldBounds() {
     const height = this.game.canvas.height;
     const width = this.game.canvas.width;
@@ -217,6 +282,9 @@ export class MainScene extends Phaser.Scene {
     this.physics.add.collider(c, this.goal);
   }
 
+  /** Boundaries on the far outside edges of the canvas
+   * that catches all enemies, obstacles and particles and destroys them
+   */
   private setWorldGarbageCollector() {
     const height = this.game.canvas.height;
     const width = this.game.canvas.width;
@@ -243,14 +311,22 @@ export class MainScene extends Phaser.Scene {
     });
   }
 
+  /** To give a sense of movement, particles are set to flow
+   * in the background
+   */
   private animateParticles() {
     this.particleInterval = setInterval(() => {
-      const p = new Particle(this, Math.random() * this.game.canvas.width, -50);
+      const p = new Particle(
+        this,
+        Math.random() * this.game.canvas.width,
+        -500
+      );
       p.init();
       this.particleLayer.add(p);
-    }, 50);
+    }, 25);
   }
 
+  /** Given data, build the level so that it can be executed in the playLevel function */
   private buildLevel() {
     const levelBuilder = new LevelBuilder(this);
     return levelBuilder.build(levelOne, {
@@ -266,6 +342,7 @@ export class MainScene extends Phaser.Scene {
     });
   }
 
+  /** Play the given level, executing levelblocks in order */
   private playLevel(level: ExecutableLevelSegment[]) {
     const levelBuilder = new LevelBuilder(this);
     levelBuilder.play(level);

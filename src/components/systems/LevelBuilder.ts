@@ -185,6 +185,7 @@ export default class LevelBuilder {
     { spawnX, spawnY, duration, posX, posY }: LevelBlock,
     addToGroup: (e: Phaser.Physics.Arcade.Sprite) => void
   ) {
+
     return new Promise<void>((resolve) => {
       const egg = new Egg(
         this.scene,
@@ -193,6 +194,8 @@ export default class LevelBuilder {
       );
       const d = this.scene.add.existing(egg);
       egg.setVelocity(0, 100);
+      this.scene.emitter.emit("stop-background")
+
       setTimeout(() => {
         egg.setVelocity(0, 0);
 

@@ -1,27 +1,69 @@
 import { styles } from "../../../lib/shared";
 
-export default class Sparkle extends Phaser.GameObjects.Sprite {
-  constructor(scene, x, y, frameRate = 9, completeCallback: () => void) {
+export default class ShockWave extends Phaser.Physics.Arcade.Sprite {
+  constructor(
+    scene,
+    x,
+    y,
+    frameRate = 9,
+    size: number = 1,
+    completeCallback?: () => void
+  ) {
     super(scene, x, y, "critical", 0);
+    this.scene.physics.add.existing(this);
     this.scene.add.existing(this);
     this.anims.create({
       repeat: 0,
-      key: "critical-animate",
+      key: "shockwave-animate",
       frames: this.anims.generateFrameNumbers("critical", {
-        frames: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+        frames: [5, 4, 3, 2, 1, 0],
       }),
       frameRate,
     });
     this.on("animationcomplete", () => {
       completeCallback?.();
-      this.destroy();
     });
     this.anims.play({
-      key: "critical-animate",
+      key: "shockwave-animate",
+    });
+    this.body.setCircle(65);
+    this.setTint(styles.colors.green.hex);
+    this.setAlpha(0.7);
+    setTimeout(() => {
+      this.scaleIn(size);
+    }, 300);
+  }
+
+  scaleIn(size: number = 1) {
+    const timeline = this.scene.tweens.createTimeline({
+      targets: this,
+      ease: "Cubic",
+      loop: 0,
+    });
+    timeline.add({
+      targets: this,
+      scaleX: {
+        getStart: () => 0.5,
+        getEnd: () => size,
+      },
+      scaleY: {
+        getStart: () => 0.5,
+        getEnd: () => size,
+      },
+      duration: 300,
     });
 
-    this.setTint(styles.colors.green.hex);
-    this.setScale(3);
-    this.setAlpha(0.7);
+    timeline.add({
+      targets: this,
+      alpha: {
+        getStart: () => 1,
+        getEnd: () => 0,
+      },
+      duration: 500,
+    });
+    timeline.setCallback("onComplete", () => {
+      this.destroy();
+    });
+    timeline.play();
   }
 }

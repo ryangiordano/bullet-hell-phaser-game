@@ -1,14 +1,16 @@
 import State from "../../../game-state/State";
+import { scaleOut } from "../../../lib/animation/Animations";
 import { getKnockbackVector, styles } from "../../../lib/shared";
-import ShockWave from "../misc/ShockWave";
+import DeathWave from "../misc/DeathWave";
 import SparkleExplosion from "../misc/SparkleExplosion";
 
 const TACKLE_VELOCITY = 4000;
 const MOVEMENT_VELOCITY = 1000;
 const TACKLE_MAX_VELOCITY = 800;
 const MAX_VELOCITY = 400;
-
-enum HeroStates {
+const SECOND_COMBO_THRESHOLD = 15;
+const FIRST_COMBO_THESHOLD = 5;
+export enum HeroStates {
   normal,
   super,
   superDuper,
@@ -20,6 +22,7 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
   public charging: boolean = false;
   public dead: boolean = false;
   private flashingInterval: NodeJS.Timeout;
+  public heroState: HeroStates = HeroStates.normal;
   constructor(scene, x, y) {
     super(scene, x, y, "hero", 0);
     this.scene.add.existing(this);
@@ -77,6 +80,7 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
   }
 
   public getHurt() {
+    this.resetHeroState();
     const state = State.getInstance();
     if (!this.invuln) {
       this.anims.stop();
@@ -136,6 +140,23 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
+  public setHeroStateOnCombo(numberOfCombos: number) {
+    if (numberOfCombos > SECOND_COMBO_THRESHOLD) {
+      return this.setHeroState(HeroStates.superDuper);
+    }
+    if (numberOfCombos > FIRST_COMBO_THESHOLD) {
+      return this.setHeroState(HeroStates.super);
+    }
+  }
+
+  private setHeroState(state: HeroStates) {
+    this.heroState = state;
+  }
+
+  private resetHeroState() {
+    this.setHeroState(HeroStates.normal);
+  }
+
   public kill() {
     clearInterval(this.flashingInterval);
     this.dead = true;
@@ -144,16 +165,20 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
     this.setVelocity(0, 0);
     this.setAcceleration(0, 0);
     return new Promise<void>(async (resolve) => {
-      const playShockWave = () => {
+      const playDeathWave = () => {
         return new Promise<void>((resolve) => {
-          new ShockWave(this.scene, this.x, this.y, 15, () => {
+          new DeathWave(this.scene, this.x, this.y, 15, () => {
             resolve();
           });
         });
       };
 
-      await playShockWave();
-
+      playDeathWave();
+      await new Promise<void>((resolve) =>
+        scaleOut(this, this.scene, () => {
+          resolve();
+        }).play()
+      );
       this.setAlpha(0);
       await SparkleExplosion(this.scene, this.x, this.y);
       this.destroy();

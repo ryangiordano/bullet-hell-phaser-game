@@ -14,7 +14,15 @@ export default class Egg extends Phaser.Physics.Arcade.Sprite {
       }),
       frameRate: 3,
     });
-    this.anims.play("egg-idle");
+    this.anims.create({
+      repeat: -1,
+      key: "egg-sleep",
+      frames: this.anims.generateFrameNumbers("egg", {
+        frames: [3, 4, 5, 4],
+      }),
+      frameRate: 3,
+    });
+    this.sleep();
     this.body.setCircle(255);
     this.setBounce(1, 1);
     this.setTint(styles.colors.white.hex);
@@ -22,5 +30,17 @@ export default class Egg extends Phaser.Physics.Arcade.Sprite {
 
   jiggle() {
     jiggle(this, this.scene, () => {}).play();
+  }
+
+  idle() {
+    this.anims.play("egg-idle");
+  }
+
+  sleep() {
+    this.anims.play("egg-sleep");
+  }
+  wake() {
+    this.anims.stop();
+    this.setFrame(6);
   }
 }
