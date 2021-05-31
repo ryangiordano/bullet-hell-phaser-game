@@ -6,7 +6,7 @@ import SparkleExplosion from "../misc/SparkleExplosion";
 
 const TACKLE_VELOCITY = 4000;
 const MOVEMENT_VELOCITY = 1000;
-const TACKLE_MAX_VELOCITY = 800;
+const TACKLE_MAX_VELOCITY = 1000;
 const MAX_VELOCITY = 400;
 const SECOND_COMBO_THRESHOLD = 15;
 const FIRST_COMBO_THESHOLD = 5;
@@ -43,7 +43,7 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
 
   init() {
     const b: any = this.body;
-    b?.setDrag(500, 500);
+    b?.setDrag(1000);
     b?.setMaxVelocity(MAX_VELOCITY, MAX_VELOCITY);
     this.body.setCircle(33, 33, 5);
   }

@@ -52,7 +52,7 @@ export class MainScene extends Phaser.Scene {
     const state = State.getInstance();
     const combo = state.getCurrentCombo();
 
-    if (combo === 5 || combo >= 20) {
+    if (combo % 5 === 0 || combo >= 20) {
       const state = State.getInstance();
       const c = new Phaser.GameObjects.Container(this, x, y);
       this.add.existing(c);
@@ -105,15 +105,13 @@ export class MainScene extends Phaser.Scene {
     this.setWorldBounds();
     this.setWorldGarbageCollector();
 
-    //TODO: Implement a better way to do this.
-    // this.setFinish();
-
     /** Do something after hitting a certain number of combos */
     state.emitter.on("combo-milestone", () => {});
     state.emitter.on("game-over", async () => {
       await this.killHero();
       this.stopSpawningObstacles();
       this.scene.pause();
+      this.scene.stop();
       this.game.scene.start("GameOverScene");
     });
 
