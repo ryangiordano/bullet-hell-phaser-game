@@ -11,6 +11,9 @@ export default class State {
   private heroHealth = 3;
   private currentCombo = 0;
   private levelComplete = false;
+  private totalDamageTaken = 0;
+  private maxCombo = 0;
+  private rivalsMissed = 0;
   constructor() {}
   static getInstance() {
     if (!State.instance) {
@@ -46,6 +49,16 @@ export default class State {
     this.set<boolean>("levelComplete", value);
   }
 
+  setMaxCombo(value: number) {
+    this.set<number>("maxCombo", value);
+  }
+  setRivalsMissed(value: number) {
+    this.set<number>("rivalsMissed", value);
+  }
+  setTotalDamageTaken(value: number) {
+    this.set<number>("totalDamageTaken", value);
+  }
+
   getHeroHealth() {
     return this.heroHealth;
   }
@@ -55,12 +68,24 @@ export default class State {
   getLevelComplete() {
     return this.levelComplete;
   }
+  getTotalDamageTaken() {
+    return this.totalDamageTaken;
+  }
+  getMaxCombo() {
+    return this.maxCombo;
+  }
+  getRivalsMissed() {
+    return this.rivalsMissed;
+  }
 
   set<T>(property: string, value: T) {
     this[property] = value;
     this.emitter.emit("update-state", {
       heroHealth: this.getHeroHealth(),
       currentCombo: this.getCurrentCombo(),
+      totalDamageTaken: this.getTotalDamageTaken(),
+      maxCombo: this.getMaxCombo(),
+      rivalsMissed: this.getRivalsMissed(),
       levelComplete: this.getLevelComplete(),
     });
   }
@@ -70,5 +95,8 @@ export default class State {
     this.heroHealth = 3;
     this.currentCombo = 0;
     this.levelComplete = false;
+    this.totalDamageTaken = 0;
+    this.maxCombo = 0;
+    this.rivalsMissed = 0;
   }
 }

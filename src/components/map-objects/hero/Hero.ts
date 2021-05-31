@@ -1,6 +1,6 @@
 import State from "../../../game-state/State";
 import { scaleOut } from "../../../lib/animation/Animations";
-import { getKnockbackVector, styles } from "../../../lib/shared";
+import { getKnockbackVector, spasm, styles } from "../../../lib/shared";
 import DeathWave from "../misc/DeathWave";
 import SparkleExplosion from "../misc/SparkleExplosion";
 
@@ -86,7 +86,7 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
       this.anims.stop();
       this.setFrame(5);
       if (state.getHeroHealth() > 1) {
-        this.spasm();
+        spasm(this);
       }
       this.setInvulnerable();
       this.knockBack();
@@ -129,15 +129,6 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
     setTimeout(() => {
       b?.setMaxVelocity(MAX_VELOCITY, MAX_VELOCITY);
     }, 2000);
-  }
-
-  private spasm() {
-    for (let i = 0; i < 10; i++) {
-      setTimeout(() => {
-        this.setX(this.x + Math.random() * 25 * (i % 2 ? -1 : 1));
-        this.setY(this.y + Math.random() * 25 * (i % 2 ? -1 : 1));
-      }, i * 25);
-    }
   }
 
   public setHeroStateOnCombo(numberOfCombos: number) {

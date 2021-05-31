@@ -11,12 +11,14 @@ import Egg from "../components/map-objects/Egg";
 import { scaleIn } from "../lib/animation/Animations";
 import levelOne from "../data/levels/1";
 
-import { styles } from "../lib/shared";
+import { animateCombo, styles } from "../lib/shared";
 import LevelBuilder, {
   LevelBlockType,
 } from "../components/systems/LevelBuilder";
 import Flash from "../components/map-objects/misc/Flash";
 import ShockWave from "../components/map-objects/misc/ShockWave";
+import { Collisions } from "../components/systems/Collisions";
+import { wait } from "../lib/utility";
 
 export class MainScene extends Phaser.Scene {
   public emitter = new Phaser.Events.EventEmitter();
@@ -28,10 +30,10 @@ export class MainScene extends Phaser.Scene {
   protected shockwaves: Phaser.GameObjects.Group;
   protected particleLayer: Phaser.GameObjects.Group;
   protected itemsLayer: Phaser.GameObjects.Group;
+  protected boundaryCollide: Phaser.GameObjects.Group;
   protected finishBoundary: Boundary;
   protected particleInterval: NodeJS.Timeout;
 
-  protected boundaryCollide: Phaser.GameObjects.Group;
   constructor(key) {
     super({ key: key || "MainScene" });
     this.emitter.on("stop-background", () => {
@@ -45,43 +47,6 @@ export class MainScene extends Phaser.Scene {
       await this.hero.kill();
       resolve();
     });
-  }
-
-  /** Animate combo visual */
-  private animateCombo(x, y) {
-    const state = State.getInstance();
-    const combo = state.getCurrentCombo();
-
-    if (combo % 5 === 0 || combo >= 20) {
-      const state = State.getInstance();
-      const c = new Phaser.GameObjects.Container(this, x, y);
-      this.add.existing(c);
-
-      const f = new Flash(this, 0, 0);
-      const text = new Phaser.GameObjects.Text(
-        this,
-        -12,
-        -15,
-        `${state.getCurrentCombo()}`,
-        {
-          fontSize: "25px",
-          fontStyle: "bold",
-          fontFamily: "pixel",
-          color: styles.colors.green.string,
-          wordWrap: {
-            width: 100,
-          },
-        }
-      );
-      text.setAlign("center");
-      c.add(f);
-      c.add(text);
-
-      const tl = scaleIn(c, this, () => {
-        f.destroy();
-      });
-      tl.play();
-    }
   }
 
   public create() {
@@ -98,6 +63,7 @@ export class MainScene extends Phaser.Scene {
     this.particleLayer = new Phaser.GameObjects.Group(this);
     this.itemsLayer = new Phaser.GameObjects.Group(this);
     this.boundaryCollide = new Phaser.GameObjects.Group(this, [this.hero]);
+
     const level = this.buildLevel();
     this.playLevel(level);
     this.animateParticles();
@@ -115,123 +81,50 @@ export class MainScene extends Phaser.Scene {
       this.game.scene.start("GameOverScene");
     });
 
-    // Set collisions
+    const collisions = new Collisions(this);
+    collisions.setEnemyAntibodyCollisions(this.enemies, this.antibodies);
 
-    /** Enemies can hurt the hero, or get killed by him.
-     * If the hero has a large enough combo, he can generate shockwaves
-     */
-    this.physics.add.overlap(
+    collisions.setHeroAntibodyCollisions(this.hero, this.antibodies);
+
+    collisions.setHeroItemsCollisions(this.hero, this.itemsLayer);
+
+    collisions.setHeroGoalCollisions(this.hero, this.goal);
+
+    collisions.setHeroEnemyCollisions(
       this.enemies,
       this.hero,
-      (enemy: Enemy, hero: Hero) => {
-        /** Hero charges enemy */
-        if (hero.charging && !enemy.dying) {
-          const rand = Math.floor(Math.random() * 100);
-          /** Enemy randomly drops health item */
-          //TODO: Maybe make this part of the enemy class as a callback.
-          if (rand > 90) {
-            setTimeout(() => {
-              this.itemsLayer.add(new Health(this, enemy.x, enemy.y));
-            }, 300);
-          }
-          enemy.kill();
-          const combo = state.getCurrentCombo();
-          if (this.hero.heroState === HeroStates.super) {
-            const s = new ShockWave(this, enemy.x, enemy.y, 9, 2);
-            this.shockwaves.add(s);
-          } else if (this.hero.heroState === HeroStates.superDuper) {
-            const s = new ShockWave(this, enemy.x, enemy.y, 9, 4);
-            this.shockwaves.add(s);
-          }
-          state.incrementCombo();
-          this.hero.setHeroStateOnCombo(combo);
-
-          this.animateCombo(enemy.x, enemy.y);
-          hero.knockBack(300);
-
-          this.add.existing(new Hit(this, hero.x, hero.y));
-        } else if (!hero.invuln && !hero.charging) {
-          this.add.existing(new Hit(this, enemy.x, enemy.y));
-          hero.getHurt();
-          state.setCombo(0);
-          state.decrementHealth();
+      async (enemy, hero) => {
+        const rand = Math.floor(Math.random() * 100);
+        /** Enemy randomly drops health item */
+        //TODO: Maybe make this part of the enemy class as a callback.
+        if (rand > 90) {
+          await wait(300);
+          this.itemsLayer.add(new Health(this, enemy.x, enemy.y));
         }
-      }
-    );
-
-    /** Enemies get killed by shockwaves, incrementing your combo */
-    this.physics.add.overlap(this.enemies, this.shockwaves, (enemy: Enemy) => {
-      if (!enemy.dying) {
         enemy.kill();
+        const combo = state.getCurrentCombo();
+        if (this.hero.heroState === HeroStates.super) {
+          const s = new ShockWave(this, enemy.x, enemy.y, 9, 2);
+          this.shockwaves.add(s);
+        } else if (this.hero.heroState === HeroStates.superDuper) {
+          const s = new ShockWave(this, enemy.x, enemy.y, 9, 4);
+          this.shockwaves.add(s);
+        }
         state.incrementCombo();
-        this.animateCombo(enemy.x, enemy.y);
-      }
-    });
+        this.hero.setHeroStateOnCombo(combo);
 
-    /** Hero gets hurt by antibodies */
-    this.physics.add.overlap(
-      this.hero,
-      this.antibodies,
-      (hero: Hero, antibody: Antibody) => {
-        if (!hero.invuln) {
-          this.add.existing(new Hit(this, hero.x, hero.y));
-          hero.getHurt();
-          antibody.jiggle();
-          state.setCombo(0);
-          state.decrementHealth();
-        }
+        animateCombo(enemy.x, enemy.y, state.getCurrentCombo(), this);
+        hero.knockBack(300);
+
+        this.add.existing(new Hit(this, hero.x, hero.y));
       }
     );
 
-    /** The enemies are killed by antibodies */
-    this.physics.add.overlap(
-      this.enemies,
-      this.antibodies,
-      (enemy: Enemy, antibody: Antibody) => {
-        antibody.jiggle();
-
-        if (!enemy.dying) {
-          enemy.kill();
-          this.add.existing(new Hit(this, enemy.x, enemy.y));
-        }
-      }
-    );
-
-    /** There hero collects items */
-    this.physics.add.overlap(this.hero, this.itemsLayer, (_, item) => {
-      item.destroy();
-      state.incrementHealth();
-    });
-
-    /** The goal can interact with the hero
-     * Upon being charged at, the game will transition to the win scene
-     */
-    this.physics.add.collider(this.goal, this.hero, (egg: Egg, hero: Hero) => {
-      const state = State.getInstance();
-      egg.jiggle();
-
-      if (hero.charging) {
-        if (!state.getLevelComplete()) {
-          egg.setVelocity(0, 0);
-          egg.wake();
-          this.add.text(450, this.game.canvas.height / 2, "GOAL", {
-            fontFamily: "pixel",
-            color: styles.colors.darkGreen.string,
-            fontSize: "50px",
-            fontStyle: "bold",
-          });
-          this.scene.pause();
-          this.scene.stop("HUDScene");
-          setTimeout(() => {
-            this.scene.stop();
-            this.scene.start("VictoryScene");
-          }, 2000);
-        }
-      }
-    });
-
+    collisions.setEnemyShockwaveCollisions(this.enemies, this.shockwaves);
     this.postInit();
   }
+
+  /** Set collisions for all items  */
 
   /** Followup function for custom logic after scene initializes */
   protected postInit() {}
