@@ -52,6 +52,7 @@ export default class Egg extends Phaser.Physics.Arcade.Sprite {
   }
 
   async takeDamage() {
+    this.jiggle();
     this.hp = Math.max(this.hp - 1, 0);
     if (this.hp === 0) {
       this.defeated = true;

@@ -37,6 +37,7 @@ export class MainScene extends Phaser.Scene {
   constructor(key) {
     super({ key: key || "MainScene" });
     this.emitter.on("stop-background", () => {
+      console.log("???");
       this.stopBackground();
     });
   }
@@ -89,6 +90,7 @@ export class MainScene extends Phaser.Scene {
     collisions.setHeroItemsCollisions(this.hero, this.itemsLayer);
 
     collisions.setHeroGoalCollisions(this.hero, this.goal, async (egg: Egg) => {
+      this.hero.kill();
       this.handleLevelComplete(egg);
     });
 
@@ -145,6 +147,7 @@ export class MainScene extends Phaser.Scene {
     );
     await wait(2000);
     egg.idle();
+
     await wait(2000);
 
     const stopSparkle = egg.sparkle();
@@ -152,8 +155,30 @@ export class MainScene extends Phaser.Scene {
       this.cameras.main.fadeIn(4000, 255, 255, 255, () => resolve())
     );
 
-    await wait(10000);
-    // stopSparkle();
+    await wait(4000);
+    stopSparkle();
+    this.endLevel();
+  }
+
+  protected async endLevel() {
+    this.add.text(240, this.game.canvas.height / 2, "MISSION", {
+      fontFamily: "pixel",
+      color: styles.colors.darkGreen.string,
+      fontSize: "50px",
+      fontStyle: "bold",
+    });
+    await wait(500);
+    this.add.text(500, this.game.canvas.height / 2, "COMPLETE", {
+      fontFamily: "pixel",
+      color: styles.colors.darkGreen.string,
+      fontSize: "50px",
+      fontStyle: "bold",
+    });
+    this.scene.pause();
+    this.scene.stop("HUDScene");
+    await wait(5000);
+    this.scene.stop();
+    this.scene.start("VictoryScene");
   }
 
   protected stopBackground() {

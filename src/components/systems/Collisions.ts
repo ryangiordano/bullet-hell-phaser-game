@@ -128,7 +128,7 @@ export class Collisions {
             if (egg.defeated) {
               onDefeatCallback(egg);
             }
-
+            
             // this.scene.add.text(
             //   450,
             //   this.scene.game.canvas.height / 2,

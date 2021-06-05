@@ -12,9 +12,9 @@ export default [
   //     }),
   //   ],
   // },
-  // {
-  //   levelBlocks: [CreateWait(3000)],
-  // },
+  {
+    levelBlocks: [CreateWait(1000)],
+  },
   {
     levelBlocks: [CreateGoal()],
   },
