@@ -7,6 +7,7 @@ export default class ShockWave extends Phaser.Physics.Arcade.Sprite {
     y,
     frameRate = 9,
     size: number = 1,
+    speed: number = 300,
     completeCallback?: () => void
   ) {
     super(scene, x, y, "critical", 0);
@@ -30,11 +31,11 @@ export default class ShockWave extends Phaser.Physics.Arcade.Sprite {
     this.setTint(styles.colors.green.hex);
     this.setAlpha(0.7);
     setTimeout(() => {
-      this.scaleIn(size);
+      this.scaleIn(size, speed);
     }, 300);
   }
 
-  scaleIn(size: number = 1) {
+  scaleIn(size: number = 1, speed) {
     const timeline = this.scene.tweens.createTimeline({
       targets: this,
       ease: "Cubic",
@@ -50,7 +51,7 @@ export default class ShockWave extends Phaser.Physics.Arcade.Sprite {
         getStart: () => 0.5,
         getEnd: () => size,
       },
-      duration: 300,
+      duration: speed,
     });
 
     timeline.add({

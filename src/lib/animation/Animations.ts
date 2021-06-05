@@ -230,7 +230,7 @@ export const toXY = ({
   delay: number;
   x: number;
   y: number;
-  ease?: string;
+  ease?: string | Function;
   scene: Phaser.Scene;
   onComplete: () => void;
 }) => {

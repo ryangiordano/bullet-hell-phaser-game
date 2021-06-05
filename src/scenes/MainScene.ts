@@ -88,7 +88,9 @@ export class MainScene extends Phaser.Scene {
 
     collisions.setHeroItemsCollisions(this.hero, this.itemsLayer);
 
-    collisions.setHeroGoalCollisions(this.hero, this.goal);
+    collisions.setHeroGoalCollisions(this.hero, this.goal, async (egg: Egg) => {
+      this.handleLevelComplete(egg);
+    });
 
     collisions.setHeroEnemyCollisions(
       this.enemies,
@@ -121,6 +123,7 @@ export class MainScene extends Phaser.Scene {
     );
 
     collisions.setEnemyShockwaveCollisions(this.enemies, this.shockwaves);
+
     this.postInit();
   }
 
@@ -134,6 +137,23 @@ export class MainScene extends Phaser.Scene {
    */
   protected stopSpawningObstacles() {
     clearTimeout(this.particleInterval);
+  }
+
+  protected async handleLevelComplete(egg: Egg) {
+    await new Promise<void>((resolve) =>
+      this.cameras.main.fadeOut(2000, 255, 255, 255, () => resolve())
+    );
+    await wait(2000);
+    egg.idle();
+    await wait(2000);
+
+    const stopSparkle = egg.sparkle();
+    await new Promise<void>((resolve) =>
+      this.cameras.main.fadeIn(4000, 255, 255, 255, () => resolve())
+    );
+
+    await wait(10000);
+    // stopSparkle();
   }
 
   protected stopBackground() {

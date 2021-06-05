@@ -109,7 +109,11 @@ export class Collisions {
   /** The goal can interact with the hero.
    * Upon being charged at, the game will transition to the win scene
    */
-  public setHeroGoalCollisions(hero: Hero, goal: Phaser.GameObjects.Group) {
+  public setHeroGoalCollisions(
+    hero: Hero,
+    goal: Phaser.GameObjects.Group,
+    onDefeatCallback: (egg: Egg) => void
+  ) {
     this.scene.physics.add.collider(
       goal,
       hero,
@@ -117,26 +121,30 @@ export class Collisions {
         const state = State.getInstance();
         egg.jiggle();
 
-        if (hero.charging) {
+        if (hero.charging && !egg.invulnerable) {
           if (!state.getLevelComplete()) {
             egg.setVelocity(0, 0);
-            egg.wake();
-            this.scene.add.text(
-              450,
-              this.scene.game.canvas.height / 2,
-              "GOAL",
-              {
-                fontFamily: "pixel",
-                color: styles.colors.darkGreen.string,
-                fontSize: "50px",
-                fontStyle: "bold",
-              }
-            );
-            this.scene.scene.pause();
-            this.scene.scene.stop("HUDScene");
-            await wait(2000);
-            this.scene.scene.stop();
-            this.scene.scene.start("VictoryScene");
+            await egg.takeDamage();
+            if (egg.defeated) {
+              onDefeatCallback(egg);
+            }
+
+            // this.scene.add.text(
+            //   450,
+            //   this.scene.game.canvas.height / 2,
+            //   "GOAL",
+            //   {
+            //     fontFamily: "pixel",
+            //     color: styles.colors.darkGreen.string,
+            //     fontSize: "50px",
+            //     fontStyle: "bold",
+            //   }
+            // );
+            // this.scene.scene.pause();
+            // this.scene.scene.stop("HUDScene");
+            // await wait(2000);
+            // this.scene.scene.stop();
+            // this.scene.scene.start("VictoryScene");
           }
         }
       }
