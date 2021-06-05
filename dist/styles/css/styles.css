@@ -1,0 +1,22 @@
+@font-face {
+  font-family: "pixel";
+  src: url("/styles/font/pixel.ttf") format("truetype");
+}
+body {
+  font-size: 10px;
+  color: black;
+  background-color: #ffffff;
+}
+body div.container {
+  text-align: center;
+}
+body div.container h1 {
+  font-family: "pixel", cursive;
+  padding: 0;
+  font-size: 50px;
+}
+body div.container div#game {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}

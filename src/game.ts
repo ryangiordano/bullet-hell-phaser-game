@@ -13,7 +13,7 @@ const config: Phaser.Types.Core.GameConfig = {
   version: "1.0",
   width: 1000,
   height: 1000,
-  zoom: 1,
+  zoom: 0.8,
   type: Phaser.AUTO,
   parent: "game",
   scene: [
