@@ -36,9 +36,10 @@ export default class State {
 
   incrementCombo() {
     this.set("currentCombo", this.currentCombo + 1);
-    if (true) {
-      this.emitter.emit("combo-milestone");
-    }
+    this.set("maxCombo", Math.max(this.getMaxCombo(), this.getCurrentCombo()));
+    // if (true) {
+    //   this.emitter.emit("combo-milestone");
+    // }
   }
 
   setCombo(value) {

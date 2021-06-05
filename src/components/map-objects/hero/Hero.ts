@@ -21,6 +21,7 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
   public invuln: boolean = false;
   public charging: boolean = false;
   public dead: boolean = false;
+  public immobile: boolean = false;
   private flashingInterval: NodeJS.Timeout;
   public heroState: HeroStates = HeroStates.normal;
   constructor(scene, x, y) {
@@ -107,6 +108,7 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
     if (this.charging) {
       return;
     }
+    this.setVelocity(0, 0);
     this.anims.play({
       key: "hero-idle",
       frameRate: 60,
@@ -197,10 +199,11 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
   }
 
   private setInputs() {
+    const deadOrImmobile = this.dead || this.immobile;
     this.cursors = this.scene.input.keyboard.createCursorKeys();
 
     this.cursors.space.addListener("down", () => {
-      if (this.dead) return;
+      if (deadOrImmobile) return;
       const tackleVelocity = { x: 0, y: 0 };
       if (this.cursors.right.isDown) {
         tackleVelocity.x = TACKLE_VELOCITY;
@@ -218,27 +221,31 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
     });
 
     this.cursors.down.addListener("down", () => {
-      if (this.dead) return;
+      if (deadOrImmobile) return;
       this.setAccelerationY(MOVEMENT_VELOCITY);
     });
     this.cursors.down.addListener("up", () => this.stopMovement());
 
     this.cursors.up.addListener("down", () => {
-      if (this.dead) return;
+      if (deadOrImmobile) return;
       this.setAccelerationY(-MOVEMENT_VELOCITY);
     });
     this.cursors.up.addListener("up", () => this.stopMovement());
 
     this.cursors.left.addListener("down", () => {
-      if (this.dead) return;
+      if (deadOrImmobile) return;
       this.setAccelerationX(-MOVEMENT_VELOCITY);
     });
     this.cursors.left.addListener("up", () => this.stopMovement());
 
     this.cursors.right.addListener("down", () => {
-      if (this.dead) return;
+      if (deadOrImmobile) return;
       this.setAccelerationX(MOVEMENT_VELOCITY);
     });
     this.cursors.right.addListener("up", () => this.stopMovement());
+  }
+
+  public setImmobile(immobile: boolean) {
+    this.immobile = immobile;
   }
 }

@@ -8,16 +8,13 @@ import Boundary from "../components/map-objects/background/Boundary";
 import Antibody from "../components/map-objects/enemies/Antibody";
 import Health from "../components/map-objects/items/Health";
 import Egg from "../components/map-objects/Egg";
-import { scaleIn } from "../lib/animation/Animations";
 import levelOne from "../data/levels/1";
 
 import { animateCombo, styles } from "../lib/shared";
 import LevelBuilder, {
   LevelBlockType,
 } from "../components/systems/LevelBuilder";
-import Flash from "../components/map-objects/misc/Flash";
 import ShockWave from "../components/map-objects/misc/ShockWave";
-import { Collisions } from "../components/systems/Collisions";
 import { wait } from "../lib/utility";
 
 export class MainScene extends Phaser.Scene {
@@ -37,7 +34,6 @@ export class MainScene extends Phaser.Scene {
   constructor(key) {
     super({ key: key || "MainScene" });
     this.emitter.on("stop-background", () => {
-      console.log("???");
       this.stopBackground();
     });
   }
@@ -73,7 +69,6 @@ export class MainScene extends Phaser.Scene {
     this.setWorldGarbageCollector();
 
     /** Do something after hitting a certain number of combos */
-    state.emitter.on("combo-milestone", () => {});
     state.emitter.on("game-over", async () => {
       await this.killHero();
       this.stopSpawningObstacles();
@@ -82,54 +77,19 @@ export class MainScene extends Phaser.Scene {
       this.game.scene.start("GameOverScene");
     });
 
-    const collisions = new Collisions(this);
-    collisions.setEnemyAntibodyCollisions(this.enemies, this.antibodies);
+    this.setEnemyAntibodyCollisions(this.enemies, this.antibodies);
 
-    collisions.setHeroAntibodyCollisions(this.hero, this.antibodies);
+    this.setHeroAntibodyCollisions(this.hero, this.antibodies);
 
-    collisions.setHeroItemsCollisions(this.hero, this.itemsLayer);
+    this.setHeroItemsCollisions(this.hero, this.itemsLayer);
 
-    collisions.setHeroGoalCollisions(this.hero, this.goal, async (egg: Egg) => {
-      this.hero.kill();
-      this.handleLevelComplete(egg);
-    });
+    this.setHeroGoalCollisions(this.hero, this.goal);
+    this.setHeroEnemyCollisions(this.enemies, this.hero);
 
-    collisions.setHeroEnemyCollisions(
-      this.enemies,
-      this.hero,
-      async (enemy, hero) => {
-        const rand = Math.floor(Math.random() * 100);
-        /** Enemy randomly drops health item */
-        //TODO: Maybe make this part of the enemy class as a callback.
-        if (rand > 90) {
-          await wait(300);
-          this.itemsLayer.add(new Health(this, enemy.x, enemy.y));
-        }
-        enemy.kill();
-        const combo = state.getCurrentCombo();
-        if (this.hero.heroState === HeroStates.super) {
-          const s = new ShockWave(this, enemy.x, enemy.y, 9, 2);
-          this.shockwaves.add(s);
-        } else if (this.hero.heroState === HeroStates.superDuper) {
-          const s = new ShockWave(this, enemy.x, enemy.y, 9, 4);
-          this.shockwaves.add(s);
-        }
-        state.incrementCombo();
-        this.hero.setHeroStateOnCombo(combo);
-
-        animateCombo(enemy.x, enemy.y, state.getCurrentCombo(), this);
-        hero.knockBack(300);
-
-        this.add.existing(new Hit(this, hero.x, hero.y));
-      }
-    );
-
-    collisions.setEnemyShockwaveCollisions(this.enemies, this.shockwaves);
+    this.setEnemyShockwaveCollisions(this.enemies, this.shockwaves);
 
     this.postInit();
   }
-
-  /** Set collisions for all items  */
 
   /** Followup function for custom logic after scene initializes */
   protected postInit() {}
@@ -161,24 +121,26 @@ export class MainScene extends Phaser.Scene {
   }
 
   protected async endLevel() {
-    this.add.text(240, this.game.canvas.height / 2, "MISSION", {
+    const state = State.getInstance();
+    const textProps = {
       fontFamily: "pixel",
       color: styles.colors.darkGreen.string,
       fontSize: "50px",
       fontStyle: "bold",
-    });
+    };
+
+    this.add.text(240, this.game.canvas.height / 2, "MISSION", textProps);
     await wait(500);
-    this.add.text(500, this.game.canvas.height / 2, "COMPLETE", {
-      fontFamily: "pixel",
-      color: styles.colors.darkGreen.string,
-      fontSize: "50px",
-      fontStyle: "bold",
-    });
+    this.add.text(500, this.game.canvas.height / 2, "COMPLETE", textProps);
     this.scene.pause();
     this.scene.stop("HUDScene");
     await wait(5000);
     this.scene.stop();
-    this.scene.start("VictoryScene");
+    this.scene.start("VictoryScene", {
+      rivalsMissed: state.getRivalsMissed(),
+      damageTaken: state.getTotalDamageTaken(),
+      maxCombo: state.getMaxCombo(),
+    });
   }
 
   protected stopBackground() {
@@ -239,6 +201,8 @@ export class MainScene extends Phaser.Scene {
       entity.destroy();
     });
     this.physics.add.overlap(c, this.enemies, (entity) => {
+      const state = State.getInstance();
+      state.setRivalsMissed(state.getRivalsMissed() + 1);
       entity.destroy();
     });
 
@@ -282,6 +246,143 @@ export class MainScene extends Phaser.Scene {
   private playLevel(level: ExecutableLevelSegment[]) {
     const levelBuilder = new LevelBuilder(this);
     levelBuilder.play(level);
+  }
+
+  /** Enemies can hurt the hero, or get killed by him.
+   * If the hero has a large enough combo, he can generate shockwaves
+   */
+  private setHeroEnemyCollisions(
+    enemies: Phaser.GameObjects.Group,
+    hero: Hero
+  ) {
+    const state = State.getInstance();
+    this.physics.add.overlap(
+      enemies,
+      hero,
+      async (enemy: Enemy, hero: Hero) => {
+        /** Hero charges enemy */
+        if (hero.charging && !enemy.dying) {
+          const rand = Math.floor(Math.random() * 100);
+          /** Enemy randomly drops health item */
+          //TODO: Maybe make this part of the enemy class as a callback.
+          if (rand > 90) {
+            await wait(300);
+            this.itemsLayer.add(new Health(this, enemy.x, enemy.y));
+          }
+          enemy.kill();
+          const combo = state.getCurrentCombo();
+          if (this.hero.heroState === HeroStates.super) {
+            const s = new ShockWave(this, enemy.x, enemy.y, 9, 2);
+            this.shockwaves.add(s);
+          } else if (this.hero.heroState === HeroStates.superDuper) {
+            const s = new ShockWave(this, enemy.x, enemy.y, 9, 4);
+            this.shockwaves.add(s);
+          }
+          state.incrementCombo();
+          this.hero.setHeroStateOnCombo(combo);
+
+          animateCombo(enemy.x, enemy.y, state.getCurrentCombo(), this);
+          hero.knockBack(300);
+
+          this.add.existing(new Hit(this, hero.x, hero.y));
+        } else if (!hero.invuln && !hero.charging) {
+          this.add.existing(new Hit(this, enemy.x, enemy.y));
+          state.setTotalDamageTaken(state.getTotalDamageTaken() + 1);
+          hero.getHurt();
+          state.setCombo(0);
+          state.decrementHealth();
+        }
+      }
+    );
+  }
+
+  /** Enemies get killed by shockwaves, incrementing your combo */
+  private setEnemyShockwaveCollisions(
+    enemies: Phaser.GameObjects.Group,
+    shockwaves: Phaser.GameObjects.Group
+  ) {
+    const state = State.getInstance();
+    this.physics.add.overlap(enemies, shockwaves, (enemy: Enemy) => {
+      if (!enemy.dying) {
+        enemy.kill();
+        state.incrementCombo();
+        animateCombo(enemy.x, enemy.y, state.getCurrentCombo(), this);
+      }
+    });
+  }
+
+  /** Hero gets hurt by antibodies */
+  private setHeroAntibodyCollisions(
+    hero: Hero,
+    antibodies: Phaser.GameObjects.Group
+  ) {
+    const state = State.getInstance();
+    this.physics.add.overlap(
+      hero,
+      antibodies,
+      (hero: Hero, antibody: Antibody) => {
+        if (!hero.invuln) {
+          this.add.existing(new Hit(this, hero.x, hero.y));
+          state.setTotalDamageTaken(state.getTotalDamageTaken() + 1);
+          hero.getHurt();
+          antibody.jiggle();
+          state.setCombo(0);
+          state.decrementHealth();
+        }
+      }
+    );
+  }
+
+  /** The enemies are killed by antibodies */
+  private setEnemyAntibodyCollisions(
+    enemies: Phaser.GameObjects.Group,
+    antibodies: Phaser.GameObjects.Group
+  ) {
+    this.physics.add.overlap(
+      enemies,
+      antibodies,
+      (enemy: Enemy, antibody: Antibody) => {
+        antibody.jiggle();
+
+        if (!enemy.dying) {
+          enemy.kill();
+          this.add.existing(new Hit(this, enemy.x, enemy.y));
+        }
+      }
+    );
+  }
+
+  /** There hero collects items */
+  private setHeroItemsCollisions(
+    hero: Hero,
+    itemsLayer: Phaser.GameObjects.Group
+  ) {
+    const state = State.getInstance();
+    this.physics.add.overlap(hero, itemsLayer, (_, item) => {
+      item.destroy();
+      state.incrementHealth();
+    });
+  }
+
+  /** The goal can interact with the hero.
+   * Upon being charged at, the game will transition to the win scene
+   */
+  private setHeroGoalCollisions(hero: Hero, goal: Phaser.GameObjects.Group) {
+    this.physics.add.collider(goal, hero, async (egg: Egg, hero: Hero) => {
+      const state = State.getInstance();
+      egg.jiggle();
+
+      if (hero.charging && !egg.invulnerable) {
+        if (!state.getLevelComplete()) {
+          egg.setVelocity(0, 0);
+          await egg.takeDamage();
+          if (egg.defeated) {
+            this.hero.kill();
+            this.handleLevelComplete(egg);
+          }
+        }
+      }
+    });
   }
 
   update() {}

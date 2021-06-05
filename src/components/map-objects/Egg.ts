@@ -33,6 +33,7 @@ export default class Egg extends Phaser.Physics.Arcade.Sprite {
     this.body.setCircle(255);
     this.setBounce(1, 1);
     this.setTint(styles.colors.white.hex);
+    this.setPushable(false);
   }
 
   jiggle() {
