@@ -1,6 +1,5 @@
 <p align="center">
   <img width="600px" src="https://darumadevdiaryhome.files.wordpress.com/2021/06/sketch1622978790285.png">
-  Lo's Birthday Game.
 </p>
 
 # Born this Way
