@@ -1,3 +1,4 @@
+import Boundary from "../components/map-objects/background/Boundary";
 import Flash from "../components/map-objects/misc/Flash";
 import { scaleIn } from "./animation/Animations";
 
@@ -87,4 +88,27 @@ export function animateCombo(
     });
     tl.play();
   }
+}
+
+export function setWorldBounds(scene: Phaser.Scene) {
+  const height = scene.game.canvas.height;
+  const width = scene.game.canvas.width;
+
+  const left = new Boundary(scene, -250, height / 2, 500, height * 2);
+  const right = new Boundary(scene, width + 250, height / 2, 500, height * 2);
+  const top = new Boundary(scene, width / 2, -250, width * 2, 500);
+  const bottom = new Boundary(scene, width / 2, height + 250, width * 2, 500);
+
+  const boundaryStaticGroup = new Phaser.Physics.Arcade.StaticGroup(
+    scene.physics.world,
+    scene,
+    [left, right, top, bottom]
+  );
+
+  left.init();
+  right.init();
+  top.init();
+  bottom.init();
+
+  return boundaryStaticGroup;
 }

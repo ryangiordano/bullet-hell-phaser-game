@@ -23,7 +23,6 @@ function getGiantTextProps() {
     fontFamily: "pixel",
     color: styles.colors.darkGreen.string,
     fontSize: "125px",
-    // fontStyle: "bold",
   };
 }
 

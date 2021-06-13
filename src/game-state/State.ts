@@ -1,4 +1,5 @@
 import { Item, Items } from "../data/Items";
+import { LevelData } from "../data/levels/LevelRepository";
 
 export type CurrentState = {
   heroHealth: number;
@@ -14,6 +15,7 @@ export default class State {
   private totalDamageTaken = 0;
   private maxCombo = 0;
   private rivalsMissed = 0;
+  private unlockedLevelIds: number[] = [1, 2, 1, 2, 1];
   constructor() {}
   static getInstance() {
     if (!State.instance) {
@@ -37,9 +39,6 @@ export default class State {
   incrementCombo() {
     this.set("currentCombo", this.currentCombo + 1);
     this.set("maxCombo", Math.max(this.getMaxCombo(), this.getCurrentCombo()));
-    // if (true) {
-    //   this.emitter.emit("combo-milestone");
-    // }
   }
 
   setCombo(value) {
@@ -99,5 +98,12 @@ export default class State {
     this.totalDamageTaken = 0;
     this.maxCombo = 0;
     this.rivalsMissed = 0;
+  }
+
+  getUnlockedLevels() {
+    return this.unlockedLevelIds;
+  }
+  addUnlockedLevel(id: number) {
+    this.unlockedLevelIds.push(id);
   }
 }

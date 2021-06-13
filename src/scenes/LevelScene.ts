@@ -1,4 +1,4 @@
-import { ExecutableLevelSegment } from "./../components/systems/LevelBuilder";
+import { ExecutableLevelSegment } from "../components/systems/LevelBuilder";
 import Enemy from "../components/map-objects/enemies/Enemy";
 import Hero, { HeroStates } from "../components/map-objects/hero/Hero";
 import Particle from "../components/map-objects/background/Particle";
@@ -10,14 +10,14 @@ import Health from "../components/map-objects/items/Health";
 import Egg from "../components/map-objects/Egg";
 import levelOne from "../data/levels/1";
 
-import { animateCombo, styles } from "../lib/shared";
+import { animateCombo, setWorldBounds, styles } from "../lib/shared";
 import LevelBuilder, {
   LevelBlockType,
 } from "../components/systems/LevelBuilder";
 import ShockWave from "../components/map-objects/misc/ShockWave";
 import { wait } from "../lib/utility";
 
-export class MainScene extends Phaser.Scene {
+export class LevelScene extends Phaser.Scene {
   public emitter = new Phaser.Events.EventEmitter();
   public map: Phaser.Tilemaps.Tilemap;
   protected hero: Hero;
@@ -32,7 +32,7 @@ export class MainScene extends Phaser.Scene {
   protected particleInterval: NodeJS.Timeout;
 
   constructor(key) {
-    super({ key: key || "MainScene" });
+    super({ key: key || "LevelScene" });
     this.emitter.on("stop-background", () => {
       this.stopBackground();
     });
@@ -156,28 +156,10 @@ export class MainScene extends Phaser.Scene {
    * wandering outside them.
    */
   private setWorldBounds() {
-    const height = this.game.canvas.height;
-    const width = this.game.canvas.width;
+    const boundaryStaticGroup = setWorldBounds(this);
 
-    const left = new Boundary(this, -250, height / 2, 500, height * 2);
-    const right = new Boundary(this, width + 250, height / 2, 500, height * 2);
-    const top = new Boundary(this, width / 2, -250, width * 2, 500);
-    const bottom = new Boundary(this, width / 2, height + 250, width * 2, 500);
-
-    const c = new Phaser.Physics.Arcade.StaticGroup(this.physics.world, this, [
-      left,
-      right,
-      top,
-      bottom,
-    ]);
-
-    left.init();
-    right.init();
-    top.init();
-    bottom.init();
-
-    this.physics.add.collider(c, this.boundaryCollide);
-    this.physics.add.collider(c, this.goal);
+    this.physics.add.collider(boundaryStaticGroup, this.boundaryCollide);
+    this.physics.add.collider(boundaryStaticGroup, this.goal);
   }
 
   /** Boundaries on the far outside edges of the canvas

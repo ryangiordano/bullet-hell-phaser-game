@@ -1,5 +1,6 @@
 import State from "../../../game-state/State";
 import { scaleOut } from "../../../lib/animation/Animations";
+import { HasProximity } from "../../../lib/Proximity";
 import { getKnockbackVector, spasm, styles } from "../../../lib/shared";
 import DeathWave from "../misc/DeathWave";
 import SparkleExplosion from "../misc/SparkleExplosion";
@@ -16,7 +17,10 @@ export enum HeroStates {
   superDuper,
 }
 
-export default class Hero extends Phaser.Physics.Arcade.Sprite {
+export default class Hero
+  extends Phaser.Physics.Arcade.Sprite
+  implements HasProximity
+{
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   public invuln: boolean = false;
   public charging: boolean = false;
@@ -24,7 +28,9 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
   public immobile: boolean = false;
   private flashingInterval: NodeJS.Timeout;
   public heroState: HeroStates = HeroStates.normal;
-  constructor(scene, x, y) {
+  public proximity: Phaser.Physics.Arcade.Sprite;
+
+  constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "hero", 0);
     this.scene.add.existing(this);
     this.setInputs();
@@ -47,6 +53,7 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
     b?.setDrag(1000);
     b?.setMaxVelocity(MAX_VELOCITY, MAX_VELOCITY);
     this.body.setCircle(33, 33, 5);
+    this.setProximity();
   }
 
   private stopMovement() {
@@ -126,11 +133,10 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
       this.anims.play({
         key: "hero-idle",
       });
+      b?.setMaxVelocity(MAX_VELOCITY, MAX_VELOCITY);
     }, 400);
 
-    setTimeout(() => {
-      b?.setMaxVelocity(MAX_VELOCITY, MAX_VELOCITY);
-    }, 2000);
+    setTimeout(() => {}, 2000);
   }
 
   public setHeroStateOnCombo(numberOfCombos: number) {
@@ -247,5 +253,22 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
 
   public setImmobile(immobile: boolean) {
     this.immobile = immobile;
+  }
+
+  private setProximity() {
+    this.proximity = new Phaser.Physics.Arcade.Sprite(
+      this.scene,
+      this.x,
+      this.y,
+      null
+    );
+    this.scene.physics.add.existing(this.proximity);
+    this.proximity.body.setOffset(-110, -110);
+    this.proximity.body.setCircle(126);
+  }
+
+  update() {
+    this.proximity.x = this.x;
+    this.proximity.y = this.y;
   }
 }

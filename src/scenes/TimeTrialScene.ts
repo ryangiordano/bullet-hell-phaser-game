@@ -4,9 +4,9 @@ import Enemy from "../components/map-objects/enemies/Enemy";
 import State from "../game-state/State";
 import { toXY } from "../lib/animation/Animations";
 import { styles } from "../lib/shared";
-import { MainScene } from "./MainScene";
+import { LevelScene } from "./LevelScene";
 
-export default class TimeTrialScene extends MainScene {
+export default class TimeTrialScene extends LevelScene {
   private antibodyInterval: NodeJS.Timeout;
   private enemyInterval: NodeJS.Timeout;
   private finishLineTimeout: NodeJS.Timeout;

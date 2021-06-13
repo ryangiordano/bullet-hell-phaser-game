@@ -12,8 +12,7 @@ export class BootScene extends Phaser.Scene {
     }
   }
   private runStartupProcess() {
-    this.scene.start("MainScene");
-    this.scene.start("HUDScene");
+    this.scene.start("LevelSelectScene");
   }
 
   preload(): void {
@@ -59,6 +58,12 @@ export class BootScene extends Phaser.Scene {
       frameWidth: 128,
       frameHeight: 128,
     });
+
+    this.load.spritesheet("level-egg", "./src/assets/sprites/level-egg.png", {
+      frameWidth: 128,
+      frameHeight: 128,
+    });
+
     this.load.spritesheet("antibody", "./src/assets/sprites/antibody.png", {
       frameWidth: 256,
       frameHeight: 256,
