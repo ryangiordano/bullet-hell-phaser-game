@@ -2,9 +2,8 @@ import LevelEgg from "../components/level-select/LevelEgg";
 import Hero from "../components/map-objects/hero/Hero";
 import { getLevelDataById } from "../data/levels/LevelRepository";
 import State from "../game-state/State";
-import { distanceProximity, withProximity } from "../lib/Proximity";
+import { withProximity } from "../lib/Proximity";
 import { setWorldBounds, styles } from "../lib/shared";
-import { wait } from "../lib/utility";
 
 /** Position level eggs should appear on the main map */
 const eggNodes = [
@@ -45,8 +44,6 @@ export class LevelSelectScene extends Phaser.Scene {
   create() {
     this.events.on("update", () => {});
     const state = State.getInstance();
-    //create and add the level egg here
-
     this.levelEggs = new Phaser.GameObjects.Group(this);
 
     this.hero = this.physics.add.existing(
@@ -80,6 +77,7 @@ export class LevelSelectScene extends Phaser.Scene {
       onLeave: (_, levelEgg: LevelEgg) => {
         levelEgg.hideLevelData();
       },
+      size:2
     });
   }
 
@@ -90,13 +88,19 @@ export class LevelSelectScene extends Phaser.Scene {
       async (egg: LevelEgg, hero: Hero) => {
         egg.jiggle();
         if (hero.charging) {
+          const { id } = egg.getLevelData();
+          this.startLevel(id);
         }
       }
     );
   }
 
-  private startLevel() {
-    this.scene.start("MainScene");
+  private startLevel(levelId: number) {
+    this.scene.stop();
+
+    this.scene.start("LevelScene", {
+      levelId,
+    });
     this.scene.start("HUDScene");
   }
 

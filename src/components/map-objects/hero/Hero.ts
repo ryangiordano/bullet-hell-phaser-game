@@ -1,6 +1,5 @@
 import State from "../../../game-state/State";
 import { scaleOut } from "../../../lib/animation/Animations";
-import { HasProximity } from "../../../lib/Proximity";
 import { getKnockbackVector, spasm, styles } from "../../../lib/shared";
 import DeathWave from "../misc/DeathWave";
 import SparkleExplosion from "../misc/SparkleExplosion";
@@ -17,10 +16,7 @@ export enum HeroStates {
   superDuper,
 }
 
-export default class Hero
-  extends Phaser.Physics.Arcade.Sprite
-  implements HasProximity
-{
+export default class Hero extends Phaser.Physics.Arcade.Sprite {
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   public invuln: boolean = false;
   public charging: boolean = false;
@@ -53,7 +49,6 @@ export default class Hero
     b?.setDrag(1000);
     b?.setMaxVelocity(MAX_VELOCITY, MAX_VELOCITY);
     this.body.setCircle(33, 33, 5);
-    this.setProximity();
   }
 
   private stopMovement() {
@@ -253,22 +248,5 @@ export default class Hero
 
   public setImmobile(immobile: boolean) {
     this.immobile = immobile;
-  }
-
-  private setProximity() {
-    this.proximity = new Phaser.Physics.Arcade.Sprite(
-      this.scene,
-      this.x,
-      this.y,
-      null
-    );
-    this.scene.physics.add.existing(this.proximity);
-    this.proximity.body.setOffset(-110, -110);
-    this.proximity.body.setCircle(126);
-  }
-
-  update() {
-    this.proximity.x = this.x;
-    this.proximity.y = this.y;
   }
 }

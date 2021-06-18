@@ -72,6 +72,7 @@ export default class Egg extends Phaser.Physics.Arcade.Sprite {
         fontStyle: "bold",
         fontSize: "23px",
         color: styles.colors.darkGreen.string,
+        fontFamily: "pixel",
       });
       this.levelDisplayContainer.setAlpha(0);
       this.levelDisplayContainer.add(levelName);
@@ -140,7 +141,9 @@ export default class Egg extends Phaser.Physics.Arcade.Sprite {
       clearTimeout(interval);
     };
   }
-  update() {
-    console.log("???");
+  update() {}
+
+  getLevelData() {
+    return this.levelData;
   }
 }

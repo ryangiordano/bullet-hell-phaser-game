@@ -135,14 +135,17 @@ export class VictoryScene extends Phaser.Scene {
   setInputs() {
     this.cursors = this.input.keyboard.createCursorKeys();
     this.cursors.space.addListener("down", () => {
-      const state = State.getInstance();
-      this.scene.stop("HUDScene");
-      this.scene.stop("MainScene");
-      state.resetGame();
-
-      this.scene.start("HUDScene");
-      this.scene.start("MainScene");
+      this.backToLevelSelect();
     });
+  }
+
+  private backToLevelSelect() {
+    const state = State.getInstance();
+    this.scene.stop("HUDScene");
+    this.scene.stop("LevelSelectScene");
+    state.resetGame();
+
+    this.scene.start("LevelSelectScene");
   }
 
   update() {}
