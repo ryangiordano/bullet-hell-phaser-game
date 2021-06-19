@@ -16,6 +16,7 @@ import LevelBuilder, {
 } from "../components/systems/LevelBuilder";
 import ShockWave from "../components/map-objects/misc/ShockWave";
 import { wait } from "../lib/utility";
+import { getLevelDataById } from "../data/levels/LevelRepository";
 
 export class LevelScene extends Phaser.Scene {
   public emitter = new Phaser.Events.EventEmitter();
@@ -30,7 +31,7 @@ export class LevelScene extends Phaser.Scene {
   protected boundaryCollide: Phaser.GameObjects.Group;
   protected finishBoundary: Boundary;
   protected particleInterval: NodeJS.Timeout;
-
+  protected levelId: number;
   constructor(key) {
     super({ key: key || "LevelScene" });
     this.emitter.on("stop-background", () => {
@@ -44,6 +45,10 @@ export class LevelScene extends Phaser.Scene {
       await this.hero.kill();
       resolve();
     });
+  }
+
+  init({ levelId }) {
+    this.levelId = levelId;
   }
 
   public create() {
@@ -211,7 +216,8 @@ export class LevelScene extends Phaser.Scene {
   /** Given data, build the level so that it can be executed in the playLevel function */
   private buildLevel() {
     const levelBuilder = new LevelBuilder(this);
-    return levelBuilder.build(levelOne, {
+    const levelData = getLevelDataById(this.levelId);
+    return levelBuilder.build(levelData.level, {
       [LevelBlockType.antibody]: (e) => {
         this.antibodies.add(e);
       },

@@ -19,18 +19,7 @@ function createProximity({
   return proximity;
 }
 
-/** Create the proximity ring that will shadow the objectWithProximity.
- * Any objectDetected that enter the ring will trigger a callback
- * Likewise, any objectDetected that leaves will trigger a callback
- */
-export function withProximity({
-  scene,
-  objectWithProximity,
-  groupToDetect,
-  onEnter,
-  onLeave,
-  size = 1,
-}: {
+interface ProximityConfig {
   scene: Phaser.Scene;
   objectWithProximity: Phaser.Physics.Arcade.Sprite;
   groupToDetect: Phaser.GameObjects.Group;
@@ -43,7 +32,20 @@ export function withProximity({
     objectDetected: Phaser.Types.Physics.Arcade.GameObjectWithBody
   ) => void;
   size?: number;
-}) {
+}
+
+/** Create a proximity ring that will shadow the objectWithProximity.
+ * Any objectDetected that enter the ring will trigger a callback
+ * Likewise, any objectDetected that leaves will trigger a callback
+ */
+export function withProximity({
+  scene,
+  objectWithProximity,
+  groupToDetect,
+  onEnter,
+  onLeave,
+  size = 1,
+}: ProximityConfig) {
   /** Create the proximity ring and center it on the objectWithProximity */
   const proximity = createProximity({
     x: objectWithProximity.x,

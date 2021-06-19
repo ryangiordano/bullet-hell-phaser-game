@@ -1,10 +1,10 @@
-import { LevelBlock } from "../../components/systems/LevelBuilder";
+import { LevelSegment } from "../../components/systems/LevelBuilder";
 import levelOne from "./1";
 import levelTwo from "./2";
 
 export type LevelData = {
   id: number;
-  level: LevelBlock[];
+  level: LevelSegment[];
   name: string;
 };
 
