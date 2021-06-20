@@ -16,6 +16,32 @@ export enum HeroStates {
   superDuper,
 }
 
+function spin(
+  scene: Phaser.Scene,
+  target: Phaser.GameObjects.GameObject | Phaser.GameObjects.GameObject[]
+) {
+  return new Promise<void>((resolve) => {
+    const timeline = scene.tweens.createTimeline({
+      targets: target,
+      loop: 2,
+    });
+    timeline.add({
+      targets: target,
+      angle: {
+        getStart: () => 0,
+        getEnd: () => 360,
+      },
+
+      duration: 100,
+    });
+
+    timeline.setCallback("onComplete", () => {
+      resolve();
+    });
+    timeline.play();
+  });
+}
+
 export default class Hero extends Phaser.Physics.Arcade.Sprite {
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   public invuln: boolean = false;
@@ -37,6 +63,15 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
         frames: [0, 1, 2, 3, 4, 3, 2, 1],
       }),
       frameRate: 18,
+    });
+
+    this.anims.create({
+      repeat: 0,
+      key: "hero-spin",
+      frames: this.anims.generateFrameNames("hero", {
+        frames: [6, 6, 6, 7, 7, 7, 7, 6],
+      }),
+      frameRate: 17,
     });
     this.anims.play({
       key: "hero-idle",
@@ -111,10 +146,12 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
       return;
     }
     this.setVelocity(0, 0);
-    this.anims.play({
-      key: "hero-idle",
-      frameRate: 60,
-    });
+    spin(this.scene, this);
+    this.anims.play({ key: "hero-spin", frameRate: 10 });
+    // this.anims.play({
+    //   key: "hero-idle",
+    //   frameRate: 60,
+    // });
 
     this.generateShadow();
 
@@ -187,7 +224,8 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
           this.scene,
           this.x,
           this.y,
-          "hero"
+          "hero",
+          7
         );
         shade.setTint(styles.colors.lightGreen.hex);
         shade.setAlpha(0.2);

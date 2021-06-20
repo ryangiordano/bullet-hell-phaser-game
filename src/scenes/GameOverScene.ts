@@ -17,14 +17,9 @@ export class GameOverScene extends Phaser.Scene {
       fontSize: "50px",
       fontStyle: "bold",
     };
-    this.add.text(
-      350,
-      this.game.canvas.height / 2,
-      "GAME OVER",
-      {
-        ...titleText,
-      }
-    );
+    this.add.text(350, this.game.canvas.height / 2, "GAME OVER", {
+      ...titleText,
+    });
   }
   setInputs() {
     this.cursors = this.input.keyboard.createCursorKeys();
@@ -34,8 +29,7 @@ export class GameOverScene extends Phaser.Scene {
       this.scene.stop("MainScene");
       state.resetGame();
 
-      this.scene.start("HUDScene");
-      this.scene.start("MainScene");
+      this.scene.start("LevelSelectScene");
     });
   }
 
