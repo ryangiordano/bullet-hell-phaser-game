@@ -1,4 +1,7 @@
-import { LevelSegment } from "../../components/systems/LevelBuilder";
+import {
+  LevelBlockType,
+  LevelSegment,
+} from "../../components/systems/LevelBuilder";
 import levelOne from "./1";
 import levelTwo from "./2";
 
@@ -26,4 +29,16 @@ export function getLevelDataById(id: number): LevelData {
     throw new Error(`Level data at ${id} does not exist`);
   }
   return levelData[id];
+}
+
+export function calculateNumberOfEnemies(levelData: LevelData) {
+  return levelData.level.reduce<number>((acc, levelSegment) => {
+    acc += levelSegment.levelBlocks.reduce<number>((a, levelBlock) => {
+      if (levelBlock.type === LevelBlockType.rival) {
+        a++;
+      }
+      return a;
+    }, 0);
+    return acc;
+  }, 0);
 }

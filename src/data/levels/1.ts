@@ -6,7 +6,7 @@ export default [
     levelBlocks: [
       ...CreateRandom({
         type: [LevelBlockType.rival],
-        numberOfSpawns: 30,
+        numberOfSpawns: 10,
         durationBetweenSpawns: 1000,
         averageVelocity: 150,
       }),

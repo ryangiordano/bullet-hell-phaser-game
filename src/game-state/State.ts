@@ -1,5 +1,6 @@
 import { Item, Items } from "../data/Items";
 import { LevelData } from "../data/levels/LevelRepository";
+import { calculateLevelCompletePercentage } from "../components/systems/LevelScore";
 
 export type CurrentState = {
   heroHealth: number;
@@ -105,5 +106,29 @@ export default class State {
   }
   addUnlockedLevel(id: number) {
     this.unlockedLevelIds.push(id);
+  }
+
+  saveLevelScoreData({
+    levelId,
+    maxCombo,
+    enemiesMissed,
+    damageTaken,
+    totalEnemies,
+  }: {
+    levelId: number;
+    maxCombo: number;
+    enemiesMissed: number;
+    damageTaken: number;
+    totalEnemies: number;
+  }) {
+    console.log(levelId, maxCombo, enemiesMissed, damageTaken);
+    console.log(
+      calculateLevelCompletePercentage({
+        enemiesMissed,
+        maxCombo,
+        totalEnemies,
+        damageTaken,
+      })
+    );
   }
 }

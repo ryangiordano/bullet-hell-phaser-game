@@ -96,6 +96,14 @@ export class VictoryScene extends Phaser.Scene {
     await this.renderMaxCombo(data.maxCombo);
     await wait(1000);
     this.renderAchievement();
+    const state = State.getInstance();
+    state.saveLevelScoreData({
+      levelId: data.levelId,
+      maxCombo: data.maxCombo,
+      enemiesMissed: data.rivalsMissed,
+      damageTaken: data.damageTaken,
+      totalEnemies: data.totalEnemies,
+    });
   }
 
   async createScoreBox(title: string, score: number, x: number, y: number) {

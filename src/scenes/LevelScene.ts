@@ -16,7 +16,10 @@ import LevelBuilder, {
 } from "../components/systems/LevelBuilder";
 import ShockWave from "../components/map-objects/misc/ShockWave";
 import { wait } from "../lib/utility";
-import { getLevelDataById } from "../data/levels/LevelRepository";
+import {
+  calculateNumberOfEnemies,
+  getLevelDataById,
+} from "../data/levels/LevelRepository";
 
 export class LevelScene extends Phaser.Scene {
   public emitter = new Phaser.Events.EventEmitter();
@@ -145,6 +148,8 @@ export class LevelScene extends Phaser.Scene {
       rivalsMissed: state.getRivalsMissed(),
       damageTaken: state.getTotalDamageTaken(),
       maxCombo: state.getMaxCombo(),
+      levelId: this.levelId,
+      totalEnemies: calculateNumberOfEnemies(getLevelDataById(this.levelId)),
     });
   }
 
@@ -171,6 +176,8 @@ export class LevelScene extends Phaser.Scene {
    * that catches all enemies, obstacles and particles and destroys them
    */
   private setWorldGarbageCollector() {
+    const state = State.getInstance();
+
     const height = this.game.canvas.height;
     const width = this.game.canvas.width;
 
@@ -184,13 +191,16 @@ export class LevelScene extends Phaser.Scene {
 
     top.init();
     bottom.init();
+
     this.physics.add.overlap(c, this.antibodies, (entity) => {
       entity.destroy();
     });
     this.physics.add.overlap(c, this.enemies, (entity) => {
-      const state = State.getInstance();
-      state.setRivalsMissed(state.getRivalsMissed() + 1);
-      entity.destroy();
+      if (!entity["to-destroy"]) {
+        entity["to-destroy"] = true;
+        entity.destroy();
+        state.setRivalsMissed(state.getRivalsMissed() + 1);
+      }
     });
 
     this.physics.add.overlap(c, this.particleLayer, (entity) => {
@@ -250,6 +260,8 @@ export class LevelScene extends Phaser.Scene {
       async (enemy: Enemy, hero: Hero) => {
         /** Hero charges enemy */
         if (hero.charging && !enemy.dying) {
+          enemy.kill();
+
           const rand = Math.floor(Math.random() * 100);
           /** Enemy randomly drops health item */
           //TODO: Maybe make this part of the enemy class as a callback.
@@ -257,7 +269,6 @@ export class LevelScene extends Phaser.Scene {
             await wait(300);
             this.itemsLayer.add(new Health(this, enemy.x, enemy.y));
           }
-          enemy.kill();
           const combo = state.getCurrentCombo();
           if (this.hero.heroState === HeroStates.super) {
             const s = new ShockWave(this, enemy.x, enemy.y, 9, 2);
