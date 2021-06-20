@@ -89,7 +89,7 @@ export class VictoryScene extends Phaser.Scene {
     this.add.text(this.game.canvas.width / 5, 10, "Mission Breakdown", {
       ...getTitleTextProps(),
     });
-    await this.renderRivalsMissed(data.rivalsMissed);
+    await this.renderEnemiesDefeated(data.enemiesDefeated);
     await wait(1000);
     await this.renderDamageTaken(data.damageTaken);
     await wait(1000);
@@ -100,7 +100,7 @@ export class VictoryScene extends Phaser.Scene {
     state.saveLevelScoreData({
       levelId: data.levelId,
       maxCombo: data.maxCombo,
-      enemiesMissed: data.rivalsMissed,
+      enemiesDefeated: data.enemiesDefeated,
       damageTaken: data.damageTaken,
       totalEnemies: data.totalEnemies,
     });
@@ -129,8 +129,8 @@ export class VictoryScene extends Phaser.Scene {
     return animateToScore(displayScore, score, scoreText);
   }
 
-  renderRivalsMissed(score: number) {
-    return this.createScoreBox("Rivals missed", score, 30, 100);
+  renderEnemiesDefeated(score: number) {
+    return this.createScoreBox("Rivals defeated", score, 30, 100);
   }
   renderDamageTaken(score: number) {
     return this.createScoreBox("Damage taken", score, 350, 100);

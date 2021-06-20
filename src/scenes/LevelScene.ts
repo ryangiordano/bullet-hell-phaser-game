@@ -145,7 +145,7 @@ export class LevelScene extends Phaser.Scene {
     await wait(5000);
     this.scene.stop();
     this.scene.start("VictoryScene", {
-      rivalsMissed: state.getRivalsMissed(),
+      enemiesDefeated: state.getEnemiesDefeated(),
       damageTaken: state.getTotalDamageTaken(),
       maxCombo: state.getMaxCombo(),
       levelId: this.levelId,
@@ -199,7 +199,6 @@ export class LevelScene extends Phaser.Scene {
       if (!entity["to-destroy"]) {
         entity["to-destroy"] = true;
         entity.destroy();
-        state.setRivalsMissed(state.getRivalsMissed() + 1);
       }
     });
 
@@ -260,6 +259,8 @@ export class LevelScene extends Phaser.Scene {
       async (enemy: Enemy, hero: Hero) => {
         /** Hero charges enemy */
         if (hero.charging && !enemy.dying) {
+          state.setEnemiesDefeated(state.getEnemiesDefeated() + 1);
+
           enemy.kill();
 
           const rand = Math.floor(Math.random() * 100);
@@ -304,6 +305,7 @@ export class LevelScene extends Phaser.Scene {
     this.physics.add.overlap(enemies, shockwaves, (enemy: Enemy) => {
       if (!enemy.dying) {
         enemy.kill();
+        state.setEnemiesDefeated(state.getEnemiesDefeated() + 1);
         state.incrementCombo();
         animateCombo(enemy.x, enemy.y, state.getCurrentCombo(), this);
       }
@@ -337,6 +339,7 @@ export class LevelScene extends Phaser.Scene {
     enemies: Phaser.GameObjects.Group,
     antibodies: Phaser.GameObjects.Group
   ) {
+    const state = State.getInstance();
     this.physics.add.overlap(
       enemies,
       antibodies,
@@ -345,6 +348,8 @@ export class LevelScene extends Phaser.Scene {
 
         if (!enemy.dying) {
           enemy.kill();
+          state.setEnemiesDefeated(state.getEnemiesDefeated() + 1);
+
           this.add.existing(new Hit(this, enemy.x, enemy.y));
         }
       }

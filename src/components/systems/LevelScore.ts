@@ -1,32 +1,32 @@
 // Library functions for determining the score of a level
 
 export type LevelScoreData = {
-  enemiesMissed: number;
+  enemiesDefeated: number;
   maxCombo: number;
   damageTaken: number;
   aggregateScore: number;
 };
 
-function calculateEnemiesMissedScore(
-  enemiesMissed: number,
+function calculateEnemiesDefeatedScore(
+  enemiesDefeated: number,
   totalEnemies: number
 ) {
   return Math.max(
-    Math.min(
-      Math.ceil(((totalEnemies - enemiesMissed) / totalEnemies) * 100),
-      100
-    ),
+    Math.min(Math.ceil((enemiesDefeated / totalEnemies) * 100), 100),
     0
   );
 }
 
-/** Return a percentage value
- * Might need to consider not needing the player to 100% this one, since
- * obstacles can kill rivals too...
+/** Return a percentage value based on
  */
-function calculateHighComboScore(combo: number, totalEnemies: number) {
-  return 100 - Math.ceil(((totalEnemies - combo) / totalEnemies) * 100);
+function calculateMaxComboScore(combo: number, totalEnemies: number) {
+  return Math.min(
+    Math.ceil(((combo + totalEnemies / 3) / totalEnemies) * 100),
+    100
+  );
 }
+
+//10, 10, 10/3, 13/10
 
 function calculateDamageTakenScore(damageTaken) {
   return (
@@ -42,36 +42,44 @@ function calculateDamageTakenScore(damageTaken) {
 function getAggregateScoreData(
   maxComboPercentage: number,
   damageTakenPercentage: number,
-  enemiesMissedPercentage: number
+  enemiesDefeatedPercentage: number
 ) {
+  console.log(
+    maxComboPercentage,
+    damageTakenPercentage,
+    enemiesDefeatedPercentage
+  );
   return Math.ceil(
-    (maxComboPercentage + damageTakenPercentage + enemiesMissedPercentage) / 3
+    (maxComboPercentage + damageTakenPercentage + enemiesDefeatedPercentage) / 3
   );
 }
 
 export function calculateLevelCompletePercentage({
-  enemiesMissed,
+  enemiesDefeated,
   maxCombo,
   totalEnemies,
   damageTaken,
 }: {
-  enemiesMissed: number;
+  enemiesDefeated: number;
   maxCombo: number;
   totalEnemies: number;
   damageTaken: number;
 }): LevelScoreData {
-  enemiesMissed = calculateEnemiesMissedScore(enemiesMissed, totalEnemies);
-  const combo = calculateHighComboScore(maxCombo, totalEnemies);
+  enemiesDefeated = calculateEnemiesDefeatedScore(
+    enemiesDefeated,
+    totalEnemies
+  );
+  const comboScore = calculateMaxComboScore(maxCombo, totalEnemies);
   damageTaken = calculateDamageTakenScore(damageTaken);
   const aggregateScore = getAggregateScoreData(
-    maxCombo,
-    enemiesMissed,
+    comboScore,
+    enemiesDefeated,
     damageTaken
   );
 
   return {
-    enemiesMissed,
-    maxCombo: combo,
+    enemiesDefeated,
+    maxCombo: comboScore,
     damageTaken,
     aggregateScore,
   };

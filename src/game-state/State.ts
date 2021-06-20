@@ -1,6 +1,7 @@
 import { Item, Items } from "../data/Items";
 import { LevelData } from "../data/levels/LevelRepository";
 import { calculateLevelCompletePercentage } from "../components/systems/LevelScore";
+import { setHighScore } from "./SaveState";
 
 export type CurrentState = {
   heroHealth: number;
@@ -15,7 +16,7 @@ export default class State {
   private levelComplete = false;
   private totalDamageTaken = 0;
   private maxCombo = 0;
-  private rivalsMissed = 0;
+  private enemiesDefeated = 0;
   private unlockedLevelIds: number[] = [1, 2, 1, 2, 1];
   constructor() {}
   static getInstance() {
@@ -53,8 +54,8 @@ export default class State {
   setMaxCombo(value: number) {
     this.set<number>("maxCombo", value);
   }
-  setRivalsMissed(value: number) {
-    this.set<number>("rivalsMissed", value);
+  setEnemiesDefeated(value: number) {
+    this.set<number>("enemiesDefeated", value);
   }
   setTotalDamageTaken(value: number) {
     this.set<number>("totalDamageTaken", value);
@@ -75,8 +76,8 @@ export default class State {
   getMaxCombo() {
     return this.maxCombo;
   }
-  getRivalsMissed() {
-    return this.rivalsMissed;
+  getEnemiesDefeated() {
+    return this.enemiesDefeated;
   }
 
   set<T>(property: string, value: T) {
@@ -86,7 +87,7 @@ export default class State {
       currentCombo: this.getCurrentCombo(),
       totalDamageTaken: this.getTotalDamageTaken(),
       maxCombo: this.getMaxCombo(),
-      rivalsMissed: this.getRivalsMissed(),
+      enemiesDefeated: this.getEnemiesDefeated(),
       levelComplete: this.getLevelComplete(),
     });
   }
@@ -98,7 +99,7 @@ export default class State {
     this.levelComplete = false;
     this.totalDamageTaken = 0;
     this.maxCombo = 0;
-    this.rivalsMissed = 0;
+    this.enemiesDefeated = 0;
   }
 
   getUnlockedLevels() {
@@ -111,24 +112,22 @@ export default class State {
   saveLevelScoreData({
     levelId,
     maxCombo,
-    enemiesMissed,
+    enemiesDefeated,
     damageTaken,
     totalEnemies,
   }: {
     levelId: number;
     maxCombo: number;
-    enemiesMissed: number;
+    enemiesDefeated: number;
     damageTaken: number;
     totalEnemies: number;
   }) {
-    console.log(levelId, maxCombo, enemiesMissed, damageTaken);
-    console.log(
-      calculateLevelCompletePercentage({
-        enemiesMissed,
-        maxCombo,
-        totalEnemies,
-        damageTaken,
-      })
-    );
+    const levelScoreData = calculateLevelCompletePercentage({
+      enemiesDefeated,
+      maxCombo,
+      totalEnemies,
+      damageTaken,
+    });
+    setHighScore(levelId, levelScoreData);
   }
 }

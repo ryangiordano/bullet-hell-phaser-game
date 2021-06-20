@@ -9,6 +9,7 @@ export default class Egg extends Phaser.Physics.Arcade.Sprite {
   private hp: number = 3;
   public invulnerable: boolean = false;
   public defeated: boolean = false;
+  private canAnimate: boolean = true;
   constructor(scene, x, y) {
     super(scene, x, y, "egg", 0);
     this.scene.physics.add.existing(this);
@@ -37,8 +38,13 @@ export default class Egg extends Phaser.Physics.Arcade.Sprite {
     this.setImmovable(true);
   }
 
-  jiggle() {
-    jiggle(this, this.scene, () => {}).play();
+  async jiggle() {
+    if (this.canAnimate) {
+      this.canAnimate = false;
+      await jiggle(this, this.scene, () => {
+        this.canAnimate = true;
+      }).play();
+    }
   }
 
   idle() {
