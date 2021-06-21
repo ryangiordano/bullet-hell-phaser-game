@@ -377,6 +377,8 @@ export class LevelScene extends Phaser.Scene {
       egg.jiggle();
 
       if (hero.charging && !egg.invulnerable) {
+        hero.knockBack(500);
+
         if (!state.getLevelComplete()) {
           egg.setVelocity(0, 0);
           await egg.takeDamage();

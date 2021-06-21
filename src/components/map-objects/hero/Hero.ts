@@ -148,11 +148,6 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
     this.setVelocity(0, 0);
     spin(this.scene, this);
     this.anims.play({ key: "hero-spin", frameRate: 10 });
-    // this.anims.play({
-    //   key: "hero-idle",
-    //   frameRate: 60,
-    // });
-
     this.generateShadow();
 
     const b: any = this.body;
