@@ -1,6 +1,12 @@
 import State from "../game-state/State";
 import { styles } from "../lib/shared";
 import { wait } from "../lib/utility";
+import Medal from "../components/victory/Medal";
+import {
+  calculateLevelCompletePercentage,
+  getMedalFromScore,
+  MedalType,
+} from "../components/systems/LevelScore";
 
 function getRegularTextProps() {
   return {
@@ -22,7 +28,7 @@ function getGiantTextProps() {
   return {
     fontFamily: "pixel",
     color: styles.colors.darkGreen.string,
-    fontSize: "125px",
+    fontSize: "110px",
   };
 }
 
@@ -59,10 +65,35 @@ function fadeIn(
   });
 }
 
+function fadeInOut(
+  scene: Phaser.Scene,
+  target: Phaser.GameObjects.GameObject | Phaser.GameObjects.GameObject[],
+  duration = 1000
+) {
+  return new Promise<void>((resolve) => {
+    const timeline = scene.tweens.createTimeline({
+      targets: target,
+      loop: -1,
+    });
+    timeline.add({
+      targets: target,
+      alpha: {
+        getStart: () => 0,
+        getEnd: () => 1,
+      },
+      yoyo: true,
+      duration: duration,
+    });
+
+    timeline.play();
+  });
+}
+
 function animateToScore(
   startingScore: number,
   goalScore: number,
-  text: Phaser.GameObjects.Text
+  text: Phaser.GameObjects.Text,
+  duration: number = 500
 ) {
   return new Promise<void>((resolve) => {
     const interval = setInterval(() => {
@@ -72,7 +103,7 @@ function animateToScore(
       }
       startingScore++;
       text.setText(`${startingScore}`);
-    }, 500 / goalScore);
+    }, duration / goalScore);
   });
 }
 
@@ -84,29 +115,75 @@ export class VictoryScene extends Phaser.Scene {
   }
   preload() {}
 
-  async init(data) {
+  async init({
+    enemiesDefeated,
+    maxCombo,
+    damageTaken,
+    totalEnemies,
+    levelId,
+  }) {
     this.setInputs();
     this.add.text(this.game.canvas.width / 5, 10, "Mission Breakdown", {
       ...getTitleTextProps(),
     });
-    await this.renderEnemiesDefeated(data.enemiesDefeated);
-    await wait(1000);
-    await this.renderDamageTaken(data.damageTaken);
-    await wait(1000);
-    await this.renderMaxCombo(data.maxCombo);
-    await wait(1000);
-    this.renderAchievement();
-    const state = State.getInstance();
-    state.saveLevelScoreData({
-      levelId: data.levelId,
-      maxCombo: data.maxCombo,
-      enemiesDefeated: data.enemiesDefeated,
-      damageTaken: data.damageTaken,
-      totalEnemies: data.totalEnemies,
+    await this.renderBreak(500, 90);
+
+    const {
+      enemiesDefeated: enemiesDefeatedPercentage,
+      maxCombo: maxComboPercentage,
+      damageTaken: damageTakenPercentage,
+      aggregateScore,
+    } = calculateLevelCompletePercentage({
+      enemiesDefeated,
+      maxCombo,
+      totalEnemies,
+      damageTaken,
     });
+
+    await this.renderEnemiesDefeated(
+      enemiesDefeated,
+      enemiesDefeatedPercentage
+    );
+
+    await wait(1000);
+    await this.renderDamageTaken(damageTaken, damageTakenPercentage);
+    await wait(1000);
+    await this.renderMaxCombo(maxCombo, maxComboPercentage);
+    await wait(1000);
+    await this.renderBreak(500, 750);
+    await wait(1000);
+    await this.renderOverallScore(aggregateScore);
+    const state = State.getInstance();
+
+    state.saveLevelScoreData({
+      levelId,
+      maxCombo,
+      enemiesDefeated,
+      damageTaken,
+      totalEnemies,
+    });
+    this.renderPressSpacebar();
   }
 
-  async createScoreBox(title: string, score: number, x: number, y: number) {
+  async renderBreak(x: number, y: number) {
+    const breakShape = this.add.rectangle(
+      x,
+      y,
+      700,
+      5,
+      styles.colors.darkGreen.hex
+    );
+    breakShape.setAlpha(0);
+    await fadeIn(this, breakShape);
+  }
+
+  private async createScoreBox(
+    title: string,
+    score: number,
+    scorePercentage: number,
+    x: number,
+    y: number
+  ) {
     const container = new Phaser.GameObjects.Container(this, x, y);
     this.add.existing(container);
 
@@ -121,25 +198,78 @@ export class VictoryScene extends Phaser.Scene {
       `${displayScore}`,
       getGiantTextProps()
     );
+
+    const medal = new Medal(this, 370, 120, getMedalFromScore(scorePercentage));
+
+    medal.setAlpha(0);
     container.add(titleText);
     container.add(scoreText);
+    container.add(medal);
     scoreText.setAlpha(0);
+
     await fadeIn(this, titleText, 100);
     await fadeIn(this, scoreText, 100);
-    return animateToScore(displayScore, score, scoreText);
+    await animateToScore(displayScore, score, scoreText);
+    await wait(1000);
+    if (getMedalFromScore(scorePercentage) === MedalType.platinum) {
+      medal.sparkle();
+    }
+    return await fadeIn(this, medal, 300);
   }
 
-  renderEnemiesDefeated(score: number) {
-    return this.createScoreBox("Rivals defeated", score, 30, 100);
+  private renderEnemiesDefeated(score: number, scorePercentage: number) {
+    return this.createScoreBox(
+      "Rivals defeated",
+      score,
+      scorePercentage,
+      50,
+      110
+    );
   }
-  renderDamageTaken(score: number) {
-    return this.createScoreBox("Damage taken", score, 350, 100);
+  private renderDamageTaken(score: number, scorePercentage: number) {
+    return this.createScoreBox("Damage taken", score, scorePercentage, 50, 310);
   }
-  renderMaxCombo(score: number) {
-    return this.createScoreBox("Max combo", score, 690, 100);
+  private renderMaxCombo(score: number, scorePercentage: number) {
+    return this.createScoreBox("Max combo", score, scorePercentage, 50, 510);
   }
 
-  renderAchievement() {}
+  private async renderOverallScore(completionPercentation: number) {
+    const scoreText = new Phaser.GameObjects.Text(
+      this,
+      50,
+      this.game.canvas.height - 180,
+      `${0}%`,
+      getGiantTextProps()
+    );
+    scoreText.setAlpha(0);
+    this.add.existing(scoreText);
+    fadeIn(this, scoreText, 500);
+
+    const overallScore = new Phaser.GameObjects.Text(
+      this,
+      50,
+      this.game.canvas.height - 230,
+      "overall score:",
+      getRegularTextProps()
+    );
+    this.add.existing(overallScore);
+
+    await animateToScore(0, completionPercentation, scoreText, 2000);
+    scoreText.setText(`${completionPercentation}%`);
+  }
+  private renderPressSpacebar() {
+    const spaceText = new Phaser.GameObjects.Text(
+      this,
+      500,
+      this.game.canvas.height - 150,
+      `Press Space`,
+      getTitleTextProps()
+    );
+
+    this.add.existing(spaceText);
+    fadeInOut(this, spaceText);
+  }
+
   setInputs() {
     this.cursors = this.input.keyboard.createCursorKeys();
     this.cursors.space.addListener("down", () => {

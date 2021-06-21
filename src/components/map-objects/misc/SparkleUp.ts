@@ -1,14 +1,15 @@
-import { toXY } from "../../../lib/animation/Animations";
-import Sparkle from "../misc/Sparkle";
 import Flash from "./Flash";
 
 export default async function SparkleUp(
   scene: Phaser.Scene,
   xPos: number,
-  yPos: number
+  yPos: number,
+  scale: number = 1,
+  distance: number = 500
 ) {
   const sparkleUp = new Promise<void>((_resolve) => {
     const s = new Flash(scene, xPos, yPos);
+    s.setScale(scale);
     const sparkle = setInterval(() => {
       s.setAlpha(s.alpha === 1 ? 0.5 : 1);
     }, 50);
@@ -21,7 +22,7 @@ export default async function SparkleUp(
     timeline.add({
       targets: s,
       x: xPos,
-      y: yPos - 500,
+      y: yPos - distance,
       scaleX: {
         getEnd: () => 0,
       },

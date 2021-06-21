@@ -77,7 +77,7 @@ export class LevelSelectScene extends Phaser.Scene {
       onLeave: (_, levelEgg: LevelEgg) => {
         levelEgg.hideLevelData();
       },
-      size:2
+      size: 2,
     });
   }
 

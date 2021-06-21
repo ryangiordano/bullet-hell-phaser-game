@@ -7,6 +7,13 @@ export type LevelScoreData = {
   aggregateScore: number;
 };
 
+export enum MedalType {
+  bronze = 0,
+  silver = 1,
+  gold = 2,
+  platinum = 3,
+}
+
 function calculateEnemiesDefeatedScore(
   enemiesDefeated: number,
   totalEnemies: number
@@ -26,8 +33,6 @@ function calculateMaxComboScore(combo: number, totalEnemies: number) {
   );
 }
 
-//10, 10, 10/3, 13/10
-
 function calculateDamageTakenScore(damageTaken) {
   return (
     {
@@ -44,14 +49,26 @@ function getAggregateScoreData(
   damageTakenPercentage: number,
   enemiesDefeatedPercentage: number
 ) {
-  console.log(
-    maxComboPercentage,
-    damageTakenPercentage,
-    enemiesDefeatedPercentage
-  );
   return Math.ceil(
     (maxComboPercentage + damageTakenPercentage + enemiesDefeatedPercentage) / 3
   );
+}
+
+/** Return the MedalType associated with argument score */
+export function getMedalFromScore(percentage: number): MedalType {
+  if (percentage >= 100) {
+    return MedalType.platinum;
+  }
+  if (percentage >= 90) {
+    return MedalType.gold;
+  }
+  if (percentage >= 80) {
+    return MedalType.silver;
+  }
+  if (percentage >= 70) {
+    return MedalType.bronze;
+  }
+  return null;
 }
 
 export function calculateLevelCompletePercentage({
