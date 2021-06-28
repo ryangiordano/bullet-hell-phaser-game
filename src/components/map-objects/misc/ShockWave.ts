@@ -28,7 +28,7 @@ export default class ShockWave extends Phaser.Physics.Arcade.Sprite {
       key: "shockwave-animate",
     });
     this.body.setCircle(65);
-    this.setTint(styles.colors.green.hex);
+    this.setTint(styles.colors.normal.hex);
     this.setAlpha(0.7);
     setTimeout(() => {
       this.scaleIn(size, speed);

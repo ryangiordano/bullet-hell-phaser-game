@@ -77,7 +77,7 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
     this.anims.play({
       key: "hero-idle",
     });
-    this.setTint(styles.colors.lightGreen.hex);
+    this.setTint(styles.colors.light.hex);
   }
 
   init() {
@@ -223,7 +223,7 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
           "hero",
           7
         );
-        shade.setTint(styles.colors.lightGreen.hex);
+        shade.setTint(styles.colors.light.hex);
         shade.setAlpha(0.2);
         this.scene.add.existing(shade);
         setTimeout(() => {

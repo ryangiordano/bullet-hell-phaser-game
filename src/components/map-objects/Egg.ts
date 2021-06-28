@@ -95,7 +95,7 @@ export default class Egg extends Phaser.Physics.Arcade.Sprite {
           new Promise<void>((resolve) => {
             this.setTint(
               flashCount % 2 === 0
-                ? styles.colors.lightGreen.hex
+                ? styles.colors.light.hex
                 : styles.colors.white.hex
             );
             setTimeout(() => {

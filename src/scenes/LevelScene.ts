@@ -132,7 +132,7 @@ export class LevelScene extends Phaser.Scene {
     const state = State.getInstance();
     const textProps = {
       fontFamily: "pixel",
-      color: styles.colors.darkGreen.string,
+      color: styles.colors.dark.string,
       fontSize: "50px",
       fontStyle: "bold",
     };

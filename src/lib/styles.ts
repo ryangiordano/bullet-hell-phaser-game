@@ -8,15 +8,15 @@ export const styles = {
       string: "#1f1f1f",
       hex: 0x1f1f1f,
     },
-    darkGreen: {
+    dark: {
       string: "#4c513b",
       hex: 0x4c513b,
     },
-    green: {
+    normal: {
       string: "#89946a",
       hex: 0x89946a,
     },
-    lightGreen: {
+    light: {
       string: "#c4cfa1",
       hex: 0xc4cfa1,
     },

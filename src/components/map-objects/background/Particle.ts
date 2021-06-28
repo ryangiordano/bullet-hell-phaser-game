@@ -5,7 +5,7 @@ export default class Particle extends Phaser.Physics.Arcade.Sprite {
     super(scene, x, y, "particles", Math.floor(Math.random() * 4));
     this.scene.physics.add.existing(this);
     this.scene.add.existing(this);
-    this.setTint(styles.colors.lightGreen.hex);
+    this.setTint(styles.colors.light.hex);
     this.setAlpha(Math.min(Math.random(), 0.3));
   }
   init() {

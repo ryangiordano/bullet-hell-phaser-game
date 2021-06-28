@@ -33,7 +33,7 @@ const config: Phaser.Types.Core.GameConfig = {
       debug: false,
     },
   },
-  backgroundColor: styles.colors.lightGreen.hex,
+  backgroundColor: styles.colors.light.hex,
   render: { pixelArt: false, antialias: true },
 };
 

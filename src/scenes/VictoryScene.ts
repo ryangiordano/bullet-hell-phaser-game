@@ -11,7 +11,7 @@ import { styles } from "../lib/styles";
 function getRegularTextProps() {
   return {
     fontFamily: "pixel",
-    color: styles.colors.darkGreen.string,
+    color: styles.colors.dark.string,
     fontSize: "35px",
     fontStyle: "bold",
   };
@@ -19,7 +19,7 @@ function getRegularTextProps() {
 function getTitleTextProps() {
   return {
     fontFamily: "pixel",
-    color: styles.colors.darkGreen.string,
+    color: styles.colors.dark.string,
     fontSize: "50px",
     fontStyle: "bold",
   };
@@ -27,7 +27,7 @@ function getTitleTextProps() {
 function getGiantTextProps() {
   return {
     fontFamily: "pixel",
-    color: styles.colors.darkGreen.string,
+    color: styles.colors.dark.string,
     fontSize: "110px",
   };
 }
@@ -171,7 +171,7 @@ export class VictoryScene extends Phaser.Scene {
       y,
       700,
       5,
-      styles.colors.darkGreen.hex
+      styles.colors.dark.hex
     );
     breakShape.setAlpha(0);
     await fadeIn(this, breakShape);

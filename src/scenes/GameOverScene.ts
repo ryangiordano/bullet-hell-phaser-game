@@ -13,7 +13,7 @@ export class GameOverScene extends Phaser.Scene {
     this.setInputs();
     const titleText = {
       fontFamily: "pixel",
-      color: styles.colors.darkGreen.string,
+      color: styles.colors.dark.string,
       fontSize: "50px",
       fontStyle: "bold",
     };

@@ -50,7 +50,7 @@ export function animateCombo(
       fontSize: "25px",
       fontStyle: "bold",
       fontFamily: "pixel",
-      color: styles.colors.green.string,
+      color: styles.colors.normal.string,
       wordWrap: {
         width: 100,
       },

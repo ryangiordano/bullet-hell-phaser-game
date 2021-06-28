@@ -9,7 +9,7 @@ export default class Medal extends Phaser.GameObjects.Sprite {
     super(scene, x, y, "medal", medalType);
     this.scene.add.existing(this);
     this.setFrame(medalType);
-    this.setTint(styles.colors.lightGreen.hex);
+    this.setTint(styles.colors.light.hex);
     this.scene.events.once("shutdown", () => {
       clearInterval(this.sparkleInterval);
     });

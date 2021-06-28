@@ -71,7 +71,7 @@ export default class Egg extends Phaser.Physics.Arcade.Sprite {
       const levelName = this.scene.add.text(-60, 70, this.levelData.name, {
         fontStyle: "bold",
         fontSize: "23px",
-        color: styles.colors.darkGreen.string,
+        color: styles.colors.dark.string,
         fontFamily: "pixel",
       });
       this.levelDisplayContainer.setAlpha(0);

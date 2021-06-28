@@ -20,7 +20,7 @@ export default class DeathWave extends Phaser.GameObjects.Sprite {
       key: "critical-animate",
     });
 
-    this.setTint(styles.colors.green.hex);
+    this.setTint(styles.colors.normal.hex);
     this.setScale(3);
     this.setAlpha(0.7);
   }

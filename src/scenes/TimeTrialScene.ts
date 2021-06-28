@@ -64,7 +64,7 @@ export default class TimeTrialScene extends LevelScene {
             egg.setVelocity(0, 0);
             this.add.text(450, this.game.canvas.height / 2, "GOAL", {
               fontFamily: "pixel",
-              color: styles.colors.darkGreen.string,
+              color: styles.colors.dark.string,
               fontSize: "50px",
               fontStyle: "bold",
             });
