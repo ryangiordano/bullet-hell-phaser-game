@@ -3,7 +3,7 @@ import Hero from "../components/map-objects/hero/Hero";
 import { getLevelDataById } from "../data/levels/LevelRepository";
 import State from "../game-state/State";
 import { withProximity } from "../lib/Proximity";
-import { setWorldBounds, styles } from "../lib/shared";
+import { setWorldBounds } from "../lib/shared";
 
 /** Position level eggs should appear on the main map */
 const eggNodes = [

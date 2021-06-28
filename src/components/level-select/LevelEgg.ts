@@ -1,8 +1,8 @@
 import { jiggle } from "../../lib/animation/Animations";
-import { styles } from "../../lib/shared";
 import { getRandomInt } from "../../lib/utility";
 import SparkleUp from "../map-objects/misc/SparkleUp";
 import { LevelData } from "../../data/levels/LevelRepository";
+import { styles } from "../../lib/styles";
 
 function fade(
   scene: Phaser.Scene,

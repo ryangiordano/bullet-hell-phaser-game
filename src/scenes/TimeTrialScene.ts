@@ -3,7 +3,7 @@ import Antibody from "../components/map-objects/enemies/Antibody";
 import Enemy from "../components/map-objects/enemies/Enemy";
 import State from "../game-state/State";
 import { toXY } from "../lib/animation/Animations";
-import { styles } from "../lib/shared";
+import { styles } from "../lib/styles";
 import { LevelScene } from "./LevelScene";
 
 export default class TimeTrialScene extends LevelScene {

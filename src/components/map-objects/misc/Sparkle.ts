@@ -1,4 +1,4 @@
-import { styles } from "../../../lib/shared";
+import { styles } from "../../../lib/styles";
 
 export default class Sparkle extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y, frameRate = 9, small?: boolean) {

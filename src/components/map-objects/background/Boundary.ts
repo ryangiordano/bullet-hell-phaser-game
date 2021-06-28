@@ -1,5 +1,3 @@
-import { styles, getKnockbackVector } from "../../../lib/shared";
-
 export default class Boundary extends Phaser.Physics.Arcade.Sprite {
   constructor(
     scene: Phaser.Scene,

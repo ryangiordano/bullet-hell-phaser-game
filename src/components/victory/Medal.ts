@@ -1,7 +1,7 @@
 import { MedalType } from "./../systems/LevelScore";
-import { styles } from "./../../lib/shared";
 import { getRandomInt } from "../../lib/utility";
 import SparkleUp from "../map-objects/misc/SparkleUp";
+import { styles } from "../../lib/styles";
 
 export default class Medal extends Phaser.GameObjects.Sprite {
   private sparkleInterval: NodeJS.Timeout;

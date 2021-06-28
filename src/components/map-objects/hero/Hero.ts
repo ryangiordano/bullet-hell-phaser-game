@@ -1,6 +1,7 @@
 import State from "../../../game-state/State";
 import { scaleOut } from "../../../lib/animation/Animations";
-import { getKnockbackVector, spasm, styles } from "../../../lib/shared";
+import { getKnockbackVector, spasm } from "../../../lib/shared";
+import { styles } from "../../../lib/styles";
 import DeathWave from "../misc/DeathWave";
 import SparkleExplosion from "../misc/SparkleExplosion";
 

@@ -1,5 +1,4 @@
 import State from "../game-state/State";
-import { styles } from "../lib/shared";
 import { wait } from "../lib/utility";
 import Medal from "../components/victory/Medal";
 import {
@@ -7,6 +6,7 @@ import {
   getMedalFromScore,
   MedalType,
 } from "../components/systems/LevelScore";
+import { styles } from "../lib/styles";
 
 function getRegularTextProps() {
   return {

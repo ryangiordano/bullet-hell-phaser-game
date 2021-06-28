@@ -1,5 +1,5 @@
 import { jiggle } from "../../lib/animation/Animations";
-import { styles } from "../../lib/shared";
+import { styles } from "../../lib/styles";
 import { asyncForEach, getRandomInt, wait } from "../../lib/utility";
 import ShockWave from "./misc/ShockWave";
 import SparkleExplosion from "./misc/SparkleExplosion";

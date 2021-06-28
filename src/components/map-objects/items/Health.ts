@@ -1,4 +1,4 @@
-import { styles } from "../../../lib/shared";
+import { styles } from "../../../lib/styles";
 
 export default class Health extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {

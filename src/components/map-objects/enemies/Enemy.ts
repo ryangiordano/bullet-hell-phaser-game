@@ -1,6 +1,7 @@
 import { scaleOut } from "./../../../lib/animation/Animations";
-import { styles, getKnockbackVector, spasm } from "../../../lib/shared";
+import { getKnockbackVector, spasm } from "../../../lib/shared";
 import { SmallSparkleExplosion } from "../misc/SparkleExplosion";
+import { styles } from "../../../lib/styles";
 
 export default class Enemy extends Phaser.Physics.Arcade.Sprite {
   public dying: boolean = false;

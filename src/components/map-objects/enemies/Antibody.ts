@@ -1,5 +1,6 @@
 import { jiggle } from "../../../lib/animation/Animations";
-import { styles, getKnockbackVector } from "../../../lib/shared";
+import { getKnockbackVector } from "../../../lib/shared";
+import { styles } from "../../../lib/styles";
 
 export default class Antibody extends Phaser.Physics.Arcade.Sprite {
   public dying: boolean = false;

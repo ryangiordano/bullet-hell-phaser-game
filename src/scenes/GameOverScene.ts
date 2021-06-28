@@ -1,5 +1,5 @@
 import State from "../game-state/State";
-import { styles } from "../lib/shared";
+import { styles } from "../lib/styles";
 
 export class GameOverScene extends Phaser.Scene {
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;

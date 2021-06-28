@@ -3,10 +3,10 @@ import State from "./game-state/State";
 import { BootScene } from "./scenes/BootScene";
 import { LevelScene } from "./scenes/LevelScene";
 import { HUDScene } from "./scenes/HUDScene";
-import { styles } from "./lib/shared";
 import { GameOverScene } from "./scenes/GameOverScene";
 import { VictoryScene } from "./scenes/VictoryScene";
 import { LevelSelectScene } from "./scenes/LevelSelectScene";
+import { styles } from "./lib/styles";
 
 const config: Phaser.Types.Core.GameConfig = {
   title: "Baby-2022",

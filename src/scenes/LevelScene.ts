@@ -8,9 +8,8 @@ import Boundary from "../components/map-objects/background/Boundary";
 import Antibody from "../components/map-objects/enemies/Antibody";
 import Health from "../components/map-objects/items/Health";
 import Egg from "../components/map-objects/Egg";
-import levelOne from "../data/levels/1";
 
-import { animateCombo, setWorldBounds, styles } from "../lib/shared";
+import { animateCombo, setWorldBounds } from "../lib/shared";
 import LevelBuilder, {
   LevelBlockType,
 } from "../components/systems/LevelBuilder";
@@ -20,6 +19,7 @@ import {
   calculateNumberOfEnemies,
   getLevelDataById,
 } from "../data/levels/LevelRepository";
+import { styles } from "../lib/styles";
 
 export class LevelScene extends Phaser.Scene {
   public emitter = new Phaser.Events.EventEmitter();

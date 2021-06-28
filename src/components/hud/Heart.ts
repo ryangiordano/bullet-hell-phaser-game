@@ -1,4 +1,4 @@
-import { styles } from "../../lib/shared";
+import { styles } from "../../lib/styles";
 
 export default class Heart extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y) {

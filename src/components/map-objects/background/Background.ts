@@ -1,4 +1,4 @@
-import { styles } from "../../../lib/shared";
+import { styles } from "../../../lib/styles";
 
 export default class Background extends Phaser.GameObjects.Image {
   constructor(scene, x, y) {

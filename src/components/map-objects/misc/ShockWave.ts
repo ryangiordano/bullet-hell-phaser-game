@@ -1,4 +1,4 @@
-import { styles } from "../../../lib/shared";
+import { styles } from "../../../lib/styles";
 
 export default class ShockWave extends Phaser.Physics.Arcade.Sprite {
   constructor(
