@@ -17,7 +17,7 @@ export default class State {
   private totalDamageTaken = 0;
   private maxCombo = 0;
   private enemiesDefeated = 0;
-  private unlockedLevelIds: number[] = [1, 2, 1, 2, 1];
+  private unlockedLevelIds: number[] = [1, 2, 3, 4, 5];
   constructor() {}
   static getInstance() {
     if (!State.instance) {

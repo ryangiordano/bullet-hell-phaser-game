@@ -4,6 +4,9 @@ import {
 } from "../../components/systems/LevelBuilder";
 import levelOne from "./1";
 import levelTwo from "./2";
+import levelThree from "./3";
+import levelFour from "./4";
+import levelFive from "./5";
 
 export type LevelData = {
   id: number;
@@ -21,6 +24,21 @@ export const levelData = {
     id: 2,
     level: levelTwo,
     name: "Level Two",
+  },
+  3: {
+    id: 3,
+    level: levelThree,
+    name: "Level Three",
+  },
+  4: {
+    id: 4,
+    level: levelFour,
+    name: "Level Four",
+  },
+  5: {
+    id: 5,
+    level: levelFive,
+    name: "Level Five",
   },
 };
 

@@ -1,4 +1,5 @@
 import LevelEgg from "../components/level-select/LevelEgg";
+import Planet from "../components/map-objects/background/planet";
 import Star from "../components/map-objects/background/Star";
 import Hero from "../components/map-objects/hero/Hero";
 import { getLevelDataById } from "../data/levels/LevelRepository";
@@ -15,22 +16,24 @@ const eggNodes = [
     y: 250,
   },
   {
-    x: 700,
-    y: 200,
+    x: 800,
+    y: 100,
   },
   {
     x: 400,
     y: 500,
   },
   {
-    x: 250,
-    y: 800,
+    x: 600,
+    y: 330,
   },
   {
     x: 700,
     y: 700,
   },
 ];
+
+const orbits = [100, 200, 300, 400, 500];
 
 export class LevelSelectScene extends Phaser.Scene {
   private hero: Hero;
@@ -51,6 +54,22 @@ export class LevelSelectScene extends Phaser.Scene {
     this.events.on("update", () => {});
     const state = State.getInstance();
     this.levelEggs = new Phaser.GameObjects.Group(this);
+
+    orbits.forEach((o) => {
+      const a = new Phaser.GameObjects.Arc(
+        this,
+        this.game.canvas.width / 2,
+        this.game.canvas.height / 2,
+        o,
+        0,
+        360,
+        false
+      );
+      a.setFillStyle(styles.colors.dark.hex, 0.1);
+      this.add.existing(a);
+    });
+
+    new Planet(this, this.game.canvas.width / 2, this.game.canvas.height / 2);
 
     this.hero = this.physics.add.existing(
       new Hero(this, this.game.canvas.width / 2, this.game.canvas.height - 100)
@@ -83,7 +102,7 @@ export class LevelSelectScene extends Phaser.Scene {
       onLeave: (_, levelEgg: LevelEgg) => {
         levelEgg.hideLevelData();
       },
-      size: 2,
+      size: 1,
     });
   }
 
@@ -103,6 +122,7 @@ export class LevelSelectScene extends Phaser.Scene {
       this.hero,
       async (egg: LevelEgg, hero: Hero) => {
         egg.jiggle();
+        hero.knockBack(150);
         if (hero.charging) {
           const { id } = egg.getLevelData();
           this.startLevel(id);
