@@ -1,9 +1,12 @@
 import LevelEgg from "../components/level-select/LevelEgg";
+import Star from "../components/map-objects/background/Star";
 import Hero from "../components/map-objects/hero/Hero";
 import { getLevelDataById } from "../data/levels/LevelRepository";
 import State from "../game-state/State";
 import { withProximity } from "../lib/Proximity";
 import { setWorldBounds } from "../lib/shared";
+import { styles } from "../lib/styles";
+import { getRandomBetween, getRandomInt } from "../lib/utility";
 
 /** Position level eggs should appear on the main map */
 const eggNodes = [
@@ -39,7 +42,10 @@ export class LevelSelectScene extends Phaser.Scene {
   }
   preload() {}
 
-  async init(data) {}
+  async init(data) {
+    this.setStarfield();
+    this.cameras.main.setBackgroundColor(styles.colors.black.hex);
+  }
 
   create() {
     this.events.on("update", () => {});
@@ -79,6 +85,16 @@ export class LevelSelectScene extends Phaser.Scene {
       },
       size: 2,
     });
+  }
+
+  private setStarfield() {
+    for (let i = 0; i < 100; i++) {
+      const y = getRandomBetween(0, this.game.canvas.height);
+      const x = getRandomBetween(0, this.game.canvas.width);
+      const s = new Star(this, x, y);
+      s.setAlpha(getRandomBetween(0, 0.5));
+      this.add.existing(s);
+    }
   }
 
   private setHeroLevelCollisions() {

@@ -54,6 +54,11 @@ export class BootScene extends Phaser.Scene {
       frameHeight: 128,
     });
 
+    this.load.spritesheet("star", "./src/assets/sprites/star.png", {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
+
     this.load.spritesheet("hit", "./src/assets/sprites/hit.png", {
       frameWidth: 128,
       frameHeight: 128,

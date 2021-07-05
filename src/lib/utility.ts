@@ -4,6 +4,10 @@ export const getRandomInt = (min, max) => {
   return Math.floor(Math.random() * (max - min)) + min;
 };
 
+export const getRandomBetween = (min: number, max:number)=>{
+  return (Math.random() * (max - min)) + min;
+}
+
 export const createRandom = (upTo) => () => getRandomCeil(upTo);
 
 export const getRandomFloor = (upTo) => Math.floor(Math.random() * upTo);

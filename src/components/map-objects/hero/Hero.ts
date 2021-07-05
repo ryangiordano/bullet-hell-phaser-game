@@ -84,7 +84,15 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
     const b: any = this.body;
     b?.setDrag(1000);
     b?.setMaxVelocity(MAX_VELOCITY, MAX_VELOCITY);
+    this.setSmallCircle();
+  }
+
+  private setSmallCircle() {
     this.body.setCircle(33, 33, 5);
+  }
+
+  private setLargeCircle() {
+    this.body.setCircle(66, 0, 0);
   }
 
   private stopMovement() {
@@ -147,6 +155,7 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
       return;
     }
     this.setVelocity(0, 0);
+    this.setLargeCircle();
     spin(this.scene, this);
     this.anims.play({ key: "hero-spin", frameRate: 10 });
     this.generateShadow();
@@ -161,10 +170,9 @@ export default class Hero extends Phaser.Physics.Arcade.Sprite {
       this.anims.play({
         key: "hero-idle",
       });
+      this.setSmallCircle();
       b?.setMaxVelocity(MAX_VELOCITY, MAX_VELOCITY);
     }, 400);
-
-    setTimeout(() => {}, 2000);
   }
 
   public setHeroStateOnCombo(numberOfCombos: number) {

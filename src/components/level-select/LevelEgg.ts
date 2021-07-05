@@ -37,7 +37,7 @@ function fade(
   });
 }
 
-export default class Egg extends Phaser.Physics.Arcade.Sprite {
+export default class LevelEgg extends Phaser.Physics.Arcade.Sprite {
   public invulnerable: boolean = false;
   public defeated: boolean = false;
   public canAnimate: boolean = true;
@@ -58,7 +58,7 @@ export default class Egg extends Phaser.Physics.Arcade.Sprite {
     });
     this.levelDisplayContainer = this.scene.add.container(this.x, this.y);
     this.sleep();
-    this.body.setCircle(63);
+    this.body.setCircle(40,25,25);
     this.setBounce(1, 1);
     this.setTint(styles.colors.white.hex);
     this.setPushable(false);
@@ -71,7 +71,7 @@ export default class Egg extends Phaser.Physics.Arcade.Sprite {
       const levelName = this.scene.add.text(-60, 70, this.levelData.name, {
         fontStyle: "bold",
         fontSize: "23px",
-        color: styles.colors.dark.string,
+        color: styles.colors.white.string,
         fontFamily: "pixel",
       });
       this.levelDisplayContainer.setAlpha(0);
