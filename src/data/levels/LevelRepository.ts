@@ -2,6 +2,7 @@ import {
   LevelBlockType,
   LevelSegment,
 } from "../../components/systems/LevelBuilder";
+import { LevelScoreData } from "../../components/systems/LevelScore";
 import levelOne from "./1";
 import levelTwo from "./2";
 import levelThree from "./3";
@@ -12,6 +13,7 @@ export type LevelData = {
   id: number;
   level: LevelSegment[];
   name: string;
+  levelScoreData?: LevelScoreData;
 };
 
 export const levelData = {

@@ -3,6 +3,7 @@ import { getRandomInt } from "../../lib/utility";
 import SparkleUp from "../map-objects/misc/SparkleUp";
 import { LevelData } from "../../data/levels/LevelRepository";
 import { styles } from "../../lib/styles";
+import { getHighScore } from "../../game-state/SaveState";
 
 function fade(
   scene: Phaser.Scene,
@@ -43,7 +44,8 @@ export default class LevelEgg extends Phaser.Physics.Arcade.Sprite {
   public canAnimate: boolean = true;
   private levelDataVisible: boolean = false;
   private levelDisplayContainer: Phaser.GameObjects.Container;
-  constructor(scene, x, y, private levelData: LevelData) {
+  private levelData: LevelData;
+  constructor(scene, x, y, levelData: LevelData) {
     super(scene, x, y, "egg", 0);
     this.scene.physics.add.existing(this);
     this.scene.add.existing(this);
@@ -58,11 +60,16 @@ export default class LevelEgg extends Phaser.Physics.Arcade.Sprite {
     });
     this.levelDisplayContainer = this.scene.add.container(this.x, this.y);
     this.sleep();
-    this.body.setCircle(40,25,25);
+    this.body.setCircle(40, 25, 25);
     this.setBounce(1, 1);
     this.setTint(styles.colors.white.hex);
     this.setPushable(false);
     this.setImmovable(true);
+
+    this.levelData = {
+      ...levelData,
+      levelScoreData: getHighScore(levelData.id),
+    };
   }
 
   public displayLevelData() {

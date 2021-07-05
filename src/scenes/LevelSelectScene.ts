@@ -1,3 +1,4 @@
+import LevelCard from "../components/hud/LevelCard";
 import LevelEgg from "../components/level-select/LevelEgg";
 import Planet from "../components/map-objects/background/planet";
 import Star from "../components/map-objects/background/Star";
@@ -51,6 +52,8 @@ export class LevelSelectScene extends Phaser.Scene {
   }
 
   create() {
+    const c = new LevelCard(this, 50, this.game.canvas.height - 250);
+    c.setAlpha(0);
     this.events.on("update", () => {});
     const state = State.getInstance();
     this.levelEggs = new Phaser.GameObjects.Group(this);
@@ -98,9 +101,11 @@ export class LevelSelectScene extends Phaser.Scene {
       groupToDetect: this.levelEggs,
       onEnter: (_, levelEgg: LevelEgg) => {
         levelEgg.displayLevelData();
+        c.showCard(levelEgg.getLevelData());
       },
       onLeave: (_, levelEgg: LevelEgg) => {
         levelEgg.hideLevelData();
+        c.hideCard();
       },
       size: 1,
     });
