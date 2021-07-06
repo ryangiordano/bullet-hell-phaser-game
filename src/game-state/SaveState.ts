@@ -14,7 +14,7 @@ function createLocalData() {
   localStorage.setItem(SAVE_STATE_LOCAL_STORAGE_NAME, "{}");
 }
 
-export function getHighScore(levelId: number) {
+export function getHighScore(levelId: number): LevelScoreData | undefined {
   const localData = JSON.parse(
     localStorage.getItem(SAVE_STATE_LOCAL_STORAGE_NAME)
   );
@@ -26,6 +26,7 @@ export function getHighScore(levelId: number) {
   return undefined;
 }
 
+/** Save the high score to local data */
 export function setHighScore(
   levelId: number,
   levelScore: LevelScoreData

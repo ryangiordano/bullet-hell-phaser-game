@@ -1,7 +1,7 @@
 import { Item, Items } from "../data/Items";
 import { LevelData } from "../data/levels/LevelRepository";
 import { calculateLevelCompletePercentage } from "../components/systems/LevelScore";
-import { setHighScore } from "./SaveState";
+import { getHighScore, setHighScore } from "./SaveState";
 
 export type CurrentState = {
   heroHealth: number;
@@ -128,6 +128,10 @@ export default class State {
       totalEnemies,
       damageTaken,
     });
-    setHighScore(levelId, levelScoreData);
+    const previousHigh = getHighScore(levelId)?.aggregateScore;
+
+    if (!previousHigh || levelScoreData.aggregateScore > previousHigh) {
+      setHighScore(levelId, levelScoreData);
+    }
   }
 }
