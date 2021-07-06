@@ -3,8 +3,46 @@ import { LevelData } from "../../data/levels/LevelRepository";
 import { getMedalFromScore } from "../systems/LevelScore";
 import MiniMedal from "../victory/MiniMedal";
 
+function fade(
+  scene: Phaser.Scene,
+  target: Phaser.GameObjects.GameObject | Phaser.GameObjects.GameObject[],
+  duration = 300,
+  fromY,
+  toY,
+  fromAlpha,
+  toAlpha
+) {
+  return new Promise<void>((resolve) => {
+    const timeline = scene.tweens.createTimeline({
+      targets: target,
+      loop: 0,
+    });
+    timeline.add({
+      targets: target,
+      y: {
+        getStart: () => fromY,
+        getEnd: () => toY,
+      },
+      alpha: {
+        getStart: () => fromAlpha,
+        getEnd: () => toAlpha,
+      },
+      duration: duration,
+    });
+    timeline.setCallback("onComplete", () => {
+      resolve();
+    });
+    timeline.play();
+  });
+}
+
 export default class LevelCard extends Phaser.GameObjects.Container {
   private card: Phaser.GameObjects.Rectangle;
+  public displaying: boolean = false;
+  public leaving: boolean = false;
+  public entering: boolean = false;
+  private originalCoords: { x: number; y: number };
+
   constructor(scene, x, y) {
     super(scene, x, y);
     this.scene.add.existing(this);
@@ -18,11 +56,23 @@ export default class LevelCard extends Phaser.GameObjects.Container {
     );
     this.card.setOrigin(0, 0);
     this.add(this.card);
+    this.originalCoords = { x, y };
   }
 
-  showCard(levelData: LevelData) {
+  async showCard(levelData: LevelData) {
+    this.displaying = true;
     this.updateCard(levelData);
-    this.setAlpha(1);
+    this.entering = true;
+    await fade(
+      this.scene,
+      this,
+      50,
+      this.originalCoords.y - 50,
+      this.originalCoords.y,
+      0,
+      1
+    );
+    this.entering = false;
   }
 
   setSmallCard() {
@@ -66,13 +116,27 @@ export default class LevelCard extends Phaser.GameObjects.Container {
       this.setSmallCard();
     }
   }
+
   clearCard() {
     this.getAll().forEach((f) =>
       f.type === "Text" || f.type === "Sprite" ? f.destroy() : null
     );
   }
-  hideCard() {
-    this.setAlpha(0);
+
+  async hideCard() {
+    this.leaving = true;
+
+    await fade(
+      this.scene,
+      this,
+      50,
+      this.originalCoords.y,
+      this.originalCoords.y - 5,
+      1,
+      0
+    );
+    this.displaying = false;
+    this.leaving = false;
     this.clearCard();
   }
 }

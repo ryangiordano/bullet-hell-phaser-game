@@ -5,39 +5,6 @@ import { LevelData } from "../../data/levels/LevelRepository";
 import { styles } from "../../lib/styles";
 import { getHighScore } from "../../game-state/SaveState";
 
-function fade(
-  scene: Phaser.Scene,
-  target: Phaser.GameObjects.GameObject | Phaser.GameObjects.GameObject[],
-  duration = 300,
-  fromY,
-  toY,
-  toAlpha,
-  fromAlpha
-) {
-  return new Promise<void>((resolve) => {
-    const timeline = scene.tweens.createTimeline({
-      targets: target,
-      loop: 0,
-    });
-    timeline.add({
-      targets: target,
-      y: {
-        getStart: () => fromY,
-        getEnd: () => toY,
-      },
-      alpha: {
-        getStart: () => toAlpha,
-        getEnd: () => fromAlpha,
-      },
-      duration: duration,
-    });
-    timeline.setCallback("onComplete", () => {
-      resolve();
-    });
-    timeline.play();
-  });
-}
-
 export default class LevelEgg extends Phaser.Physics.Arcade.Sprite {
   public invulnerable: boolean = false;
   public defeated: boolean = false;
@@ -54,7 +21,7 @@ export default class LevelEgg extends Phaser.Physics.Arcade.Sprite {
       repeat: -1,
       key: "egg-sleep",
       frames: this.anims.generateFrameNumbers("level-egg", {
-        frames: [0, 1],
+        frames: [0, 1, 2, 1],
       }),
       frameRate: 3,
     });
@@ -71,44 +38,6 @@ export default class LevelEgg extends Phaser.Physics.Arcade.Sprite {
       levelScoreData: getHighScore(levelData.id),
     };
   }
-
-  public displayLevelData() {
-    if (!this.levelDataVisible) {
-      this.levelDataVisible = true;
-      const levelName = this.scene.add.text(-60, 70, this.levelData.name, {
-        fontStyle: "bold",
-        fontSize: "23px",
-        color: styles.colors.white.string,
-        fontFamily: "pixel",
-      });
-      this.levelDisplayContainer.setAlpha(0);
-      this.levelDisplayContainer.add(levelName);
-      fade(
-        this.scene,
-        this.levelDisplayContainer,
-        100,
-        this.y - 50,
-        this.y,
-        0,
-        1
-      );
-    }
-  }
-
-  public async hideLevelData() {
-    this.levelDataVisible = false;
-    await fade(
-      this.scene,
-      this.levelDisplayContainer,
-      100,
-      this.y,
-      this.y - 50,
-      1,
-      0
-    );
-    this.levelDisplayContainer.removeAll(true);
-  }
-
   async jiggle() {
     if (this.canAnimate) {
       this.canAnimate = false;

@@ -52,7 +52,7 @@ export class LevelSelectScene extends Phaser.Scene {
   }
 
   create() {
-    const c = new LevelCard(this, 50, this.game.canvas.height - 250);
+    const c = new LevelCard(this, 25, this.game.canvas.height - 150);
     c.setAlpha(0);
     this.events.on("update", () => {});
     const state = State.getInstance();
@@ -100,14 +100,16 @@ export class LevelSelectScene extends Phaser.Scene {
       objectWithProximity: this.hero,
       groupToDetect: this.levelEggs,
       onEnter: (_, levelEgg: LevelEgg) => {
-        levelEgg.displayLevelData();
-        c.showCard(levelEgg.getLevelData());
+        if (c.entering || c.leaving) {
+          c.updateCard(levelEgg.getLevelData());
+        } else {
+          c.showCard(levelEgg.getLevelData());
+        }
       },
-      onLeave: (_, levelEgg: LevelEgg) => {
-        levelEgg.hideLevelData();
+      onLeave: (_, __: LevelEgg) => {
         c.hideCard();
       },
-      size: 1,
+      size: 0.75,
     });
   }
 
