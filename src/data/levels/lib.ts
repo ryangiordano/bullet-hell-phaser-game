@@ -22,6 +22,7 @@ const getObstacleStartPoint = (type: LevelBlockType) => {
     [LevelBlockType.antibody]: LevelPositions.gameTop,
     [LevelBlockType.rival]: LevelPositions.gameBottom,
     [LevelBlockType.goal]: LevelPositions.gameTop,
+    [LevelBlockType.covid]: LevelPositions.gameTop,
   };
   return map[type];
 };
@@ -46,6 +47,20 @@ export const CreateWave = (
     })
     .filter((obj) => obj)
     .sort((a, b) => a.duration - b.duration);
+};
+
+export const CreateLine = (vel: number, levelBlockType: LevelBlockType) => {
+  return CreateWave(
+    [
+      { dur: 0, vel, async: true },
+      { dur: 0, vel, async: true },
+      { dur: 0, vel, async: true },
+      { dur: 0, vel, async: true },
+      { dur: 0, vel, async: true },
+      { dur: 0, vel, async: true },
+    ],
+    levelBlockType
+  );
 };
 
 export const CreateInvertedArrow = (vel: number) => {
@@ -86,11 +101,13 @@ export const CreateRandom = ({
   numberOfSpawns,
   durationBetweenSpawns,
   averageVelocity,
+  async,
 }: {
   type: LevelBlockType | LevelBlockType[];
   numberOfSpawns: number;
   durationBetweenSpawns: number;
   averageVelocity: number;
+  async?: boolean;
 }): LevelBlock[] => {
   return new Array(Math.floor(numberOfSpawns)).fill(null).map((f) => {
     const t = Array.isArray(type)
@@ -104,7 +121,7 @@ export const CreateRandom = ({
       velocity:
         averageVelocity +
         getRandomInt(-averageVelocity * 0.5, averageVelocity * 0.5),
-      async: false,
+      async,
     };
   });
 };

@@ -1,11 +1,13 @@
-import Enemy from "../map-objects/enemies/Enemy";
+import Rival from "../map-objects/enemies/Rival";
 import Antibody from "../map-objects/enemies/Antibody";
 import { asyncForEach, wait } from "../../lib/utility";
 import Egg from "../map-objects/Egg";
+import Covid from "../map-objects/enemies/Covid";
 
 export enum LevelBlockType {
   rival,
   antibody,
+  covid,
   goal,
   wait,
 }
@@ -101,7 +103,12 @@ export default class LevelBuilder {
                   levelBlock,
                   groupMap[levelBlock.type]
                 );
-
+            case LevelBlockType.covid:
+              return () =>
+                this.executeCovidLevelBlock(
+                  levelBlock,
+                  groupMap[levelBlock.type]
+                );
             case LevelBlockType.rival:
               return () =>
                 this.executeRivalLevelBlock(
@@ -150,7 +157,7 @@ export default class LevelBuilder {
       }
       setTimeout(() => {
         const d = this.scene.add.existing(
-          new Enemy(
+          new Rival(
             this.scene,
             this.getLevelPosition(posX) ?? spawnX,
             this.getLevelPosition(posY) ?? spawnY,
@@ -174,6 +181,24 @@ export default class LevelBuilder {
           this.getLevelPosition(posX) ?? spawnX,
           this.getLevelPosition(posY) ?? spawnY,
           velocity
+        )
+      );
+      addToGroup(d);
+      setTimeout(() => resolve(), duration ?? 0);
+    });
+  }
+
+  executeCovidLevelBlock(
+    { spawnX, spawnY, duration, velocity, posX, posY }: LevelBlock,
+    addToGroup: (e: Phaser.Physics.Arcade.Sprite) => void
+  ) {
+    return new Promise<void>((resolve) => {
+      const d = this.scene.add.existing(
+        new Covid(
+          this.scene,
+          this.getLevelPosition(posX) ?? spawnX,
+          this.getLevelPosition(posY) ?? spawnY,
+          addToGroup,
         )
       );
       addToGroup(d);

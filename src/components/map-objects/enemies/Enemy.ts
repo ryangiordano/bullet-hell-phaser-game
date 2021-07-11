@@ -1,28 +1,47 @@
-import { scaleOut } from "./../../../lib/animation/Animations";
+import { scaleOut } from "../../../lib/animation/Animations";
 import { getKnockbackVector, spasm } from "../../../lib/shared";
 import { SmallSparkleExplosion } from "../misc/SparkleExplosion";
-import { styles } from "../../../lib/styles";
 
 export default class Enemy extends Phaser.Physics.Arcade.Sprite {
   public dying: boolean = false;
-
-  constructor(scene, x, y, velocity?: number) {
-    super(scene, x, y, "enemy", 0);
-    velocity = velocity ?? Math.max(Math.random() * 300, 100);
+  public health: number = 1;
+  public invulnerable: boolean = false;
+  protected invulnerableDuration: number = 750;
+  protected deathFrame: number = 5;
+  protected onDamage() {
+    return;
+  }
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    sprite: string,
+    frame: number
+  ) {
+    super(scene, x, y, sprite, frame);
     this.scene.physics.add.existing(this);
     this.scene.add.existing(this);
-    this.anims.create({
-      repeat: -1,
-      key: "enemy-idle",
-      frames: this.anims.generateFrameNumbers("enemy", {
-        frames: [0, 1, 2, 3, 4, 3, 2, 1],
-      }),
-      frameRate: velocity / 10,
-    });
-    this.anims.play("enemy-idle");
-    this.setTint(styles.colors.light.hex);
-    this.setVelocityY(-velocity);
-    this.body.setSize(50, 100);
+  }
+
+  public damage() {
+    if (this.invulnerable) {
+      return;
+    }
+    this.onDamage?.();
+    this.invulnerable = true;
+    this.health--;
+    if (this.health <= 0) {
+      this.kill();
+    } else {
+      setTimeout(() => {
+        this.invulnerable = false;
+      }, this.invulnerableDuration);
+    }
+  }
+
+  public knockBack(severity: number) {
+    const { x, y } = getKnockbackVector(this.body, severity);
+    this.setVelocity(x, y);
   }
 
   async kill() {
@@ -31,7 +50,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
     spasm(this);
     this.anims.stop();
-    this.setFrame(5);
+    this.setFrame(this.deathFrame);
     this.dying = true;
     const { x, y } = getKnockbackVector(this.body, 400);
     this.setVelocity(x, y);

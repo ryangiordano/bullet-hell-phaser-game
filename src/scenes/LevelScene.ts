@@ -1,5 +1,4 @@
 import { ExecutableLevelSegment } from "../components/systems/LevelBuilder";
-import Enemy from "../components/map-objects/enemies/Enemy";
 import Hero, { HeroStates } from "../components/map-objects/hero/Hero";
 import Particle from "../components/map-objects/background/Particle";
 import Hit from "../components/map-objects/misc/Hit";
@@ -20,6 +19,7 @@ import {
   getLevelDataById,
 } from "../data/levels/LevelRepository";
 import { styles } from "../lib/styles";
+import Enemy from "../components/map-objects/enemies/Enemy";
 
 export class LevelScene extends Phaser.Scene {
   public emitter = new Phaser.Events.EventEmitter();
@@ -27,6 +27,7 @@ export class LevelScene extends Phaser.Scene {
   protected hero: Hero;
   protected goal: Phaser.GameObjects.Group;
   protected enemies: Phaser.GameObjects.Group;
+  protected covids: Phaser.GameObjects.Group;
   protected antibodies: Phaser.GameObjects.Group;
   protected shockwaves: Phaser.GameObjects.Group;
   protected particleLayer: Phaser.GameObjects.Group;
@@ -63,6 +64,7 @@ export class LevelScene extends Phaser.Scene {
     this.hero.init();
     this.enemies = new Phaser.GameObjects.Group(this);
     this.goal = new Phaser.GameObjects.Group(this);
+    this.covids = new Phaser.GameObjects.Group(this);
     this.antibodies = new Phaser.GameObjects.Group(this);
     this.shockwaves = new Phaser.GameObjects.Group(this);
     this.particleLayer = new Phaser.GameObjects.Group(this);
@@ -236,6 +238,9 @@ export class LevelScene extends Phaser.Scene {
       [LevelBlockType.goal]: (e) => {
         this.goal.add(e);
       },
+      [LevelBlockType.covid]: (e) => {
+        this.enemies.add(e);
+      },
     });
   }
 
@@ -259,9 +264,19 @@ export class LevelScene extends Phaser.Scene {
       async (enemy: Enemy, hero: Hero) => {
         /** Hero charges enemy */
         if (hero.charging && !enemy.dying) {
-          state.setEnemiesDefeated(state.getEnemiesDefeated() + 1);
+          hero.knockBack(500);
+          if (enemy.invulnerable) {
+            return;
+          }
+          enemy.knockBack(100);
 
-          enemy.kill();
+          enemy.damage();
+          if (enemy.health > 0) {
+            return;
+          }
+
+          /** Enemy is defeated */
+          state.setEnemiesDefeated(state.getEnemiesDefeated() + 1);
 
           const rand = Math.floor(Math.random() * 100);
           /** Enemy randomly drops health item */
@@ -282,7 +297,6 @@ export class LevelScene extends Phaser.Scene {
           this.hero.setHeroStateOnCombo(combo);
 
           animateCombo(enemy.x, enemy.y, state.getCurrentCombo(), this);
-          hero.knockBack(300);
 
           this.add.existing(new Hit(this, hero.x, hero.y));
         } else if (!hero.invuln && !hero.charging) {
@@ -322,7 +336,10 @@ export class LevelScene extends Phaser.Scene {
       hero,
       antibodies,
       (hero: Hero, antibody: Antibody) => {
-        if (!hero.invuln) {
+        if (hero.charging) {
+          hero.knockBack(1000);
+          antibody.jiggle();
+        } else if (!hero.invuln) {
           this.add.existing(new Hit(this, hero.x, hero.y));
           state.setTotalDamageTaken(state.getTotalDamageTaken() + 1);
           hero.getHurt();

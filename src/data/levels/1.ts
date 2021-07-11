@@ -1,6 +1,8 @@
 import { CreateGoal, CreateRandom, CreateWait } from "./lib";
 import { LevelBlockType } from "../../components/systems/LevelBuilder";
 
+
+
 export default [
   {
     levelBlocks: [

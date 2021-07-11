@@ -1,6 +1,6 @@
 import Egg from "../components/map-objects/Egg";
 import Antibody from "../components/map-objects/enemies/Antibody";
-import Enemy from "../components/map-objects/enemies/Enemy";
+import Rival from "../components/map-objects/enemies/Rival";
 import State from "../game-state/State";
 import { toXY } from "../lib/animation/Animations";
 import { styles } from "../lib/styles";
@@ -30,7 +30,7 @@ export default class TimeTrialScene extends LevelScene {
   private addCompetition() {
     this.enemyInterval = setInterval(() => {
       this.enemies.add(
-        new Enemy(
+        new Rival(
           this,
           Math.random() * this.game.canvas.width,
           this.game.canvas.height + 50

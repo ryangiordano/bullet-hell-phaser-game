@@ -1,7 +1,24 @@
-import { CreateGoal, CreateRandom, CreateWait } from "./lib";
+import {
+  CreateGoal,
+  CreateLine,
+  CreateRandom,
+  CreateWait,
+  CreateWave,
+} from "./lib";
 import { LevelBlockType } from "../../components/systems/LevelBuilder";
 
 export default [
+  {
+    levelBlocks: [
+      ...CreateWave(
+        [null, null, { dur: 0, vel: 150, async: true }, null, null, null],
+        LevelBlockType.covid
+      ),
+    ],
+  },
+  {
+    levelBlocks: [CreateWait(7000)],
+  },
   {
     async: true,
     levelBlocks: [
@@ -22,6 +39,12 @@ export default [
         averageVelocity: 200,
       }),
     ],
+  },
+  {
+    levelBlocks: [...CreateLine(150, LevelBlockType.covid)],
+  },
+  {
+    levelBlocks: [CreateWait(7000)],
   },
   {
     async: true,

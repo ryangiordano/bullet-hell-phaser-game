@@ -40,8 +40,12 @@ export class BootScene extends Phaser.Scene {
         frameHeight: 64,
       }
     );
-    // Move this into the hero somehow
     this.load.spritesheet("hero", "./src/assets/sprites/hero.png", {
+      frameWidth: 128,
+      frameHeight: 128,
+    });
+
+    this.load.spritesheet("covid", "./src/assets/sprites/covid.png", {
       frameWidth: 128,
       frameHeight: 128,
     });
