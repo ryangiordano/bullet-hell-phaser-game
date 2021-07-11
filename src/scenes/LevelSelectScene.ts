@@ -140,11 +140,9 @@ export class LevelSelectScene extends Phaser.Scene {
 
   private startLevel(levelId: number) {
     this.scene.stop();
-
-    this.scene.start("LevelScene", {
+    this.scene.start("LevelTransitionOneScene", {
       levelId,
     });
-    this.scene.start("HUDScene");
   }
 
   /** Set the static boundaries that keep the hero and goal from

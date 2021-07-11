@@ -7,6 +7,10 @@ import { GameOverScene } from "./scenes/GameOverScene";
 import { VictoryScene } from "./scenes/VictoryScene";
 import { LevelSelectScene } from "./scenes/LevelSelectScene";
 import { styles } from "./lib/styles";
+import {
+  LevelTransitionOneScene,
+  LevelTransitionTwoScene,
+} from "./scenes/LevelTransitionScene";
 
 const config: Phaser.Types.Core.GameConfig = {
   title: "Baby-2022",
@@ -23,6 +27,8 @@ const config: Phaser.Types.Core.GameConfig = {
     GameOverScene,
     VictoryScene,
     LevelSelectScene,
+    LevelTransitionOneScene,
+    LevelTransitionTwoScene,
   ],
   input: {
     keyboard: true,
