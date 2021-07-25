@@ -1,8 +1,14 @@
 import { jiggle } from "../../lib/animation/Animations";
 import { styles } from "../../lib/styles";
-import { asyncForEach, getRandomInt, wait } from "../../lib/utility";
+import {
+  asyncForEach,
+  getRandomInt,
+  wait,
+  getRandomBetween,
+} from "../../lib/utility";
 import ShockWave from "./misc/ShockWave";
 import SparkleExplosion from "./misc/SparkleExplosion";
+import SparkleTo from "./misc/SparkleTo";
 import SparkleUp from "./misc/SparkleUp";
 
 export default class Egg extends Phaser.Physics.Arcade.Sprite {
@@ -36,6 +42,10 @@ export default class Egg extends Phaser.Physics.Arcade.Sprite {
     this.setTint(styles.colors.white.hex);
     this.setPushable(false);
     this.setImmovable(true);
+
+    this.scene.events.on("color-change", ({ color }) => {
+      this.setTint(styles.colors[color].light.hex);
+    });
   }
 
   async jiggle() {
@@ -79,6 +89,23 @@ export default class Egg extends Phaser.Physics.Arcade.Sprite {
       const x = getRandomInt(this.x * 0.5, this.x * 1.5);
       const y = getRandomInt(this.y * 0.5, this.y * 1.5);
       SparkleUp(this.scene, x, y);
+    }, 100);
+    return () => {
+      clearTimeout(interval);
+    };
+  }
+
+  radiate() {
+    const interval = setInterval(() => {
+      const x = getRandomInt(this.x * 0.5, this.x * 1.5);
+      const y = getRandomInt(this.y * 0.5, this.y * 1.5);
+      SparkleTo(
+        this.scene,
+        x,
+        y,
+        x + getRandomBetween(-500, 500),
+        getRandomBetween(-500, 500)
+      );
     }, 100);
     return () => {
       clearTimeout(interval);

@@ -34,14 +34,26 @@ export default [
     levelBlocks: [
       ...CreateRandom({
         type: [LevelBlockType.rival],
-        numberOfSpawns: 40,
+        numberOfSpawns: 20,
         durationBetweenSpawns: 1000,
         averageVelocity: 200,
       }),
     ],
   },
   {
-    levelBlocks: [...CreateLine(150, LevelBlockType.covid)],
+    levelBlocks: [
+      ...CreateWave(
+        [
+          { dur: 0, vel: 100, async: true },
+          null,
+          { dur: 0, vel: 150, async: true },
+          null,
+          { dur: 0, vel: 100, async: true },
+          null,
+        ],
+        LevelBlockType.covid
+      ),
+    ],
   },
   {
     levelBlocks: [CreateWait(7000)],
@@ -61,7 +73,7 @@ export default [
     levelBlocks: [
       ...CreateRandom({
         type: [LevelBlockType.rival],
-        numberOfSpawns: 50,
+        numberOfSpawns: 30,
         durationBetweenSpawns: 700,
         averageVelocity: 200,
       }),

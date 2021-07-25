@@ -121,7 +121,16 @@ export class BootScene extends Phaser.Scene {
       frameHeight: 128,
     });
 
+    this.load.spritesheet("tiny-sperm", "./src/assets/sprites/tiny-sperm.png", {
+      frameWidth: 128,
+      frameHeight: 128,
+    });
+
     this.load.image("background", "./src/assets/images/background.png");
+    this.load.image("cloud", "./src/assets/images/cloud.png");
+    this.load.image("hill", "./src/assets/images/hill.png");
+    this.load.image("mountain", "./src/assets/images/mountain.png");
+
     this.createLoadingGraphics();
     this.load.on("complete", () => {
       this.loaded = true;

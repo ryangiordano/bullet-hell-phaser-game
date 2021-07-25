@@ -1,7 +1,10 @@
-import { Item, Items } from "../data/Items";
-import { LevelData } from "../data/levels/LevelRepository";
 import { calculateLevelCompletePercentage } from "../components/systems/LevelScore";
-import { getHighScore, setHighScore } from "./SaveState";
+import {
+  getHighScore,
+  getLevelData,
+  setHighScore,
+  setLevelUnlocked,
+} from "./SaveState";
 
 export type CurrentState = {
   heroHealth: number;
@@ -17,8 +20,10 @@ export default class State {
   private totalDamageTaken = 0;
   private maxCombo = 0;
   private enemiesDefeated = 0;
-  private unlockedLevelIds: number[] = [1, 2, 3, 4, 5];
-  constructor() {}
+  private unlockedLevelIds: Set<number> = new Set([1]);
+  constructor() {
+    this.updateUnlockedLevels();
+  }
   static getInstance() {
     if (!State.instance) {
       State.instance = new State();
@@ -105,9 +110,6 @@ export default class State {
   getUnlockedLevels() {
     return this.unlockedLevelIds;
   }
-  addUnlockedLevel(id: number) {
-    this.unlockedLevelIds.push(id);
-  }
 
   saveLevelScoreData({
     levelId,
@@ -133,5 +135,27 @@ export default class State {
     if (!previousHigh || levelScoreData.aggregateScore > previousHigh) {
       setHighScore(levelId, levelScoreData);
     }
+  }
+
+  getSavedUnlockedLevels() {
+    const levelDataObj = getLevelData();
+    const levelData = Object.keys(levelDataObj).map((k) => levelDataObj[k]);
+    const unlockedLevelIds = (levelData || [])
+      .filter((ld) => ld.unlocked)
+      .map((ld) => ld.levelId);
+    return unlockedLevelIds;
+  }
+
+  updateUnlockedLevels() {
+    const unlockedLevelIds = this.getSavedUnlockedLevels();
+    this.unlockedLevelIds = new Set([
+      ...this.unlockedLevelIds,
+      ...unlockedLevelIds,
+    ]);
+  }
+
+  setLevelUnlocked(levelId: number) {
+    setLevelUnlocked(levelId);
+    this.updateUnlockedLevels();
   }
 }

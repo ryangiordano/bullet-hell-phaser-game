@@ -7,6 +7,7 @@ import {
   MedalType,
 } from "../components/systems/LevelScore";
 import { styles } from "../lib/styles";
+import { levelData, getLevelDataById } from "../data/levels/LevelRepository";
 
 function getRegularTextProps() {
   return {
@@ -162,17 +163,16 @@ export class VictoryScene extends Phaser.Scene {
       damageTaken,
       totalEnemies,
     });
+
+    const unlockedLevelId = getLevelDataById(levelId)?.unlocks;
+    if (unlockedLevelId) {
+      state.setLevelUnlocked(unlockedLevelId);
+    }
     this.renderPressSpacebar();
   }
 
   async renderBreak(x: number, y: number) {
-    const breakShape = this.add.rectangle(
-      x,
-      y,
-      700,
-      5,
-      styles.colors.dark.hex
-    );
+    const breakShape = this.add.rectangle(x, y, 700, 5, styles.colors.dark.hex);
     breakShape.setAlpha(0);
     await fadeIn(this, breakShape);
   }

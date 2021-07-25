@@ -13,6 +13,9 @@ export type LevelData = {
   id: number;
   level: LevelSegment[];
   name: string;
+  description: string;
+  unlocks?: number;
+  unlocked?: boolean;
   levelScoreData?: LevelScoreData;
 };
 
@@ -21,26 +24,35 @@ export const levelData = {
     id: 1,
     level: levelOne,
     name: "Level One",
+    description: "To the egg!",
+    unlocks: 2,
   },
   2: {
     id: 2,
     level: levelTwo,
     name: "Level Two",
+    description: "The load runner.",
+    unlocks: 3,
   },
   3: {
     id: 3,
     level: levelThree,
     name: "Level Three",
+    description: "Watch out for big boys!",
+    unlocks: 4,
   },
   4: {
     id: 4,
     level: levelFour,
     name: "Level Four",
+    description: "Keep on rollin'.",
+    unlocks: 5,
   },
   5: {
     id: 5,
     level: levelFive,
     name: "Level Five",
+    description: "COVID in the house!",
   },
 };
 
